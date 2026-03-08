@@ -5,17 +5,26 @@ import matplotlib.pyplot as plt
 from statsmodels.tsa.arima.model import ARIMA
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-# Load dataset
+
+# ==============================
+# 1. LOAD DATA
+# ==============================
+
 df = pd.read_csv("data/cleaned/GBBL_data_clean.csv")
 
 df["Date"] = pd.to_datetime(df["Date"])
 
 df.set_index("Date", inplace=True)
 
-# Use only Close price
 data = df["Close"]
 
-# Train/Test split (80/20)
+data = data.dropna()
+
+
+# ==============================
+# 2. TRAIN TEST SPLIT
+# ==============================
+
 train_size = int(len(data) * 0.8)
 
 train = data[:train_size]
@@ -24,33 +33,51 @@ test = data[train_size:]
 print("Training samples:", len(train))
 print("Testing samples:", len(test))
 
-# Train ARIMA model
+
+# ==============================
+# 3. TRAIN ARIMA MODEL
+# ==============================
+
 model = ARIMA(train, order=(5,1,0))
 
 model_fit = model.fit()
 
 print(model_fit.summary())
 
-# Predict on test data
+
+# ==============================
+# 4. MAKE PREDICTIONS
+# ==============================
+
 predictions = model_fit.forecast(steps=len(test))
 
-# Evaluation metrics
-mae = mean_absolute_error(test, predictions)
+predictions = pd.Series(predictions.values, index=test.index)
 
-rmse = np.sqrt(mean_squared_error(test, predictions))
+
+# ==============================
+# 5. EVALUATE MODEL
+# ==============================
+
+mae = mean_absolute_error(test.values, predictions.values)
+
+rmse = np.sqrt(mean_squared_error(test.values, predictions.values))
 
 print("\nModel Evaluation")
 print("MAE:", mae)
 print("RMSE:", rmse)
 
-# Plot predictions
+
+# ==============================
+# 6. PLOT RESULTS
+# ==============================
+
 plt.figure(figsize=(12,6))
 
 plt.plot(train.index, train, label="Training Data")
 
 plt.plot(test.index, test, label="Actual Price")
 
-plt.plot(test.index, predictions, label="Predicted Price")
+plt.plot(predictions.index, predictions, label="Predicted Price")
 
 plt.title("ARIMA Stock Price Prediction")
 
