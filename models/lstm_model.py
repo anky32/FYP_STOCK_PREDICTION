@@ -75,13 +75,18 @@ X_test = X_test.reshape(X_test.shape[0], X_test.shape[1],1)
 
 model = Sequential()
 
-model.add(LSTM(50, return_sequences=True, input_shape=(window_size,1)))
+model.add(LSTM(64, return_sequences=True, input_shape=(window_size,1)))
 
-model.add(LSTM(50))
+model.add(LSTM(64))
+
+model.add(Dense(25))
 
 model.add(Dense(1))
 
-model.compile(optimizer="adam", loss="mean_squared_error")
+model.compile(
+    optimizer="adam",
+    loss="mean_squared_error"
+)
 
 
 # ==============================
