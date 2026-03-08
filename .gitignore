@@ -1,0 +1,12 @@
+# Ignore the virtual environment
+venv/
+.env/
+env/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore large NEPSE data files (keep your repo light)
+*.csv
+*.xlsx
