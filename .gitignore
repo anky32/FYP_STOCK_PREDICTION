@@ -1,12 +1,21 @@
-# Ignore the virtual environment
-venv/
-.env/
-env/
-
-# Ignore Python cache
+# Python cache
 __pycache__/
 *.pyc
+*.pyo
 
-# Ignore large NEPSE data files (keep your repo light)
-*.csv
-*.xlsx
+# Virtual environment
+venv/
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# VS Code settings
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Large datasets
+data/raw/
+data/cleaned/
