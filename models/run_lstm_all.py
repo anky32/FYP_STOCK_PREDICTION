@@ -80,6 +80,7 @@ for file in os.listdir(folder):
 
 
         model.fit(X_train, y_train, epochs=20, batch_size=32, verbose=0)
+        model.save(f"models/saved_models/{stock}_lstm.h5")
 
 
         predictions = model.predict(X_test)
