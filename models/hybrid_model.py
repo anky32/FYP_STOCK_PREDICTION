@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+import os
 
 from statsmodels.tsa.arima.model import ARIMA
 from sklearn.preprocessing import MinMaxScaler
@@ -9,164 +9,106 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
 
+folder = "data/cleaned"
 
-# =========================
-# LOAD DATA
-# =========================
-
-df = pd.read_csv("data/cleaned/GBBL_data_clean.csv")
-
-df["Date"] = pd.to_datetime(df["Date"])
-df.set_index("Date", inplace=True)
-
-data = df["Close"]
-
-
-# =========================
-# TRAIN TEST SPLIT
-# =========================
-
-train_size = int(len(data)*0.8)
-
-train = data[:train_size]
-test = data[train_size:]
-
-
-# =========================
-# ARIMA MODEL
-# =========================
-
-arima_model = ARIMA(train, order=(5,1,0))
-arima_fit = arima_model.fit()
-
-arima_pred = arima_fit.forecast(steps=len(test))
-
-
-# =========================
-# TRAIN RESIDUALS
-# =========================
-
-train_pred = arima_fit.predict(start=1, end=len(train)-1)
-
-train_actual = train[1:]
-
-residuals = train_actual.values - train_pred
-
-
-# =========================
-# SCALE RESIDUALS
-# =========================
-
-residuals = np.array(residuals).reshape(-1,1)
-
-scaler = MinMaxScaler()
-
-scaled_residuals = scaler.fit_transform(residuals)
-
-
-# =========================
-# CREATE SEQUENCES
-# =========================
+results = []
 
 def create_sequences(data, window):
 
-    X = []
-    y = []
+    X=[]
+    y=[]
 
-    for i in range(window, len(data)):
+    for i in range(window,len(data)):
         X.append(data[i-window:i,0])
         y.append(data[i,0])
 
-    return np.array(X), np.array(y)
+    return np.array(X),np.array(y)
 
 
-window = 10
+for file in os.listdir(folder):
 
-X, y = create_sequences(scaled_residuals, window)
+    if file.endswith(".csv"):
 
+        stock=file.split("_")[0]
 
-# =========================
-# LSTM TRAIN TEST SPLIT
-# =========================
+        print("\nHybrid training:",stock)
 
-train_size = int(len(X)*0.8)
+        path=os.path.join(folder,file)
 
-X_train = X[:train_size]
-X_test = X[train_size:]
+        df=pd.read_csv(path)
 
-y_train = y[:train_size]
-y_test = y[train_size:]
+        df["Date"]=pd.to_datetime(df["Date"])
+        df.set_index("Date",inplace=True)
 
+        data=df["Close"]
 
-X_train = X_train.reshape(X_train.shape[0], X_train.shape[1],1)
-X_test = X_test.reshape(X_test.shape[0], X_test.shape[1],1)
+        train_size=int(len(data)*0.8)
 
-
-# =========================
-# LSTM MODEL
-# =========================
-
-model = Sequential()
-
-model.add(LSTM(64, return_sequences=True, input_shape=(window,1)))
-model.add(LSTM(64))
-model.add(Dense(1))
-
-model.compile(optimizer="adam", loss="mean_squared_error")
+        train=data[:train_size]
+        test=data[train_size:]
 
 
-model.fit(X_train, y_train, epochs=25, batch_size=16)
+        arima=ARIMA(train,order=(5,1,0)).fit()
+
+        arima_pred=arima.forecast(steps=len(test))
 
 
-# =========================
-# PREDICT RESIDUALS
-# =========================
+        train_pred=arima.predict(start=1,end=len(train)-1)
 
-lstm_pred = model.predict(X_test)
+        residuals=train[1:].values-train_pred
 
-lstm_pred = scaler.inverse_transform(lstm_pred)
+        residuals=np.array(residuals).reshape(-1,1)
 
+        scaler=MinMaxScaler()
 
-# =========================
-# HYBRID PREDICTION
-# =========================
+        scaled=scaler.fit_transform(residuals)
 
-hybrid_pred = arima_pred[-len(lstm_pred):] + lstm_pred.flatten()
+        window=10
 
-actual = test.values[-len(hybrid_pred):]
+        X,y=create_sequences(scaled,window)
 
+        train_size=int(len(X)*0.8)
 
-# =========================
-# EVALUATION
-# =========================
+        X_train=X[:train_size]
+        X_test=X[train_size:]
 
-mae = mean_absolute_error(actual, hybrid_pred)
+        y_train=y[:train_size]
+        y_test=y[train_size:]
 
-rmse = np.sqrt(mean_squared_error(actual, hybrid_pred))
+        X_train=X_train.reshape(X_train.shape[0],X_train.shape[1],1)
+        X_test=X_test.reshape(X_test.shape[0],X_test.shape[1],1)
 
+        model=Sequential()
 
-print("\nHybrid Model Evaluation")
+        model.add(LSTM(64,return_sequences=True,input_shape=(window,1)))
+        model.add(LSTM(64))
+        model.add(Dense(1))
 
-print("MAE:", mae)
+        model.compile(optimizer="adam",loss="mse")
 
-print("RMSE:", rmse)
+        model.fit(X_train,y_train,epochs=25,batch_size=16,verbose=0)
 
+        model.save(f"models/saved_models/{stock}_hybrid_lstm.h5")
 
-# =========================
-# PLOT RESULTS
-# =========================
+        lstm_pred=model.predict(X_test)
 
-plt.figure(figsize=(12,6))
+        lstm_pred=scaler.inverse_transform(lstm_pred)
 
-plt.plot(test.index[-len(hybrid_pred):], actual, label="Actual Price")
+        hybrid_pred=arima_pred[-len(lstm_pred):]+lstm_pred.flatten()
 
-plt.plot(test.index[-len(hybrid_pred):], hybrid_pred, label="Hybrid Prediction")
+        actual=test.values[-len(hybrid_pred):]
 
-plt.legend()
+        mae=mean_absolute_error(actual,hybrid_pred)
+        rmse=np.sqrt(mean_squared_error(actual,hybrid_pred))
 
-plt.title("Hybrid ARIMA-LSTM Prediction")
+        results.append([stock,mae,rmse])
 
-plt.xlabel("Date")
-plt.ylabel("Price")
+        print(stock,"MAE:",mae,"RMSE:",rmse)
 
-plt.show()
+results_df=pd.DataFrame(results,columns=["Stock","MAE","RMSE"])
+
+os.makedirs("results", exist_ok=True)
+
+results_df.to_csv("results/hybrid_results.csv",index=False)
+
+print("\nHybrid Results Saved")
