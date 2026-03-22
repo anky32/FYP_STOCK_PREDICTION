@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NEPSE Stock Prediction</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f8;
+            text-align: center;
+        }
+
+        .container {
+            width: 60%;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 40px;
+        }
+
+        table {
+            margin: auto;
+            border-collapse: collapse;
+            width: 80%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+        }
+
+        button {
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+        }
+
+        img {
+            margin-top: 20px;
+            max-width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>📈 NEPSE Stock Prediction System</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <select name="stock">
+        <option value="GBBL">GBBL</option>
+        <option value="CIT">CIT</option>
+        <option value="NABIL">NABIL</option>
+        <option value="DDBL">DDBL</option>
+        <option value="ICFC">ICFC</option>
+        <option value="KKHC">KKHC</option>
+        <option value="NLIC">NLIC</option>
+        <option value="PRIN">PRIN</option>
+        <option value="SHL">SHL</option>
+        <option value="STC">STC</option>
+        <option value="UNL">UNL</option>
+    </select>
+
+    <select name="model">
+        <option value="arima">ARIMA</option>
+        <option value="lstm">LSTM</option>
+        <option value="hybrid">Hybrid</option>
+    </select>
+
+    <button type="submit">Predict</button>
+</form>
+
+{% if result %}
+
+<h3>📊 Prediction Result</h3>
+
+{% if result.error %}
+<p style="color:red;">{{ result.error }}</p>
+{% else %}
+
+<p><strong>Stock:</strong> {{ result.stock }}</p>
+<p><strong>Model:</strong> {{ result.model }}</p>
+
+<table>
+<tr>
+<th>Date</th>
+<th>Price</th>
+</tr>
+
+{% for item in result.combined %}
+<tr>
+<td>{{ item.0 }}</td>
+<td>{{ item.1|floatformat:2 }}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+<img src="data:image/png;base64,{{ result.graph }}">
+
+{% endif %}
+{% endif %}
+
+</div>
+
+</body>
+</html>
