@@ -11,7 +11,7 @@
         }
 
         .container {
-            width: 60%;
+            width: 65%;
             margin: auto;
             background: white;
             padding: 25px;
@@ -23,6 +23,7 @@
             margin: auto;
             border-collapse: collapse;
             width: 80%;
+            margin-top: 20px;
         }
 
         th, td {
@@ -40,11 +41,16 @@
             background: #007bff;
             color: white;
             border: none;
+            cursor: pointer;
         }
 
         img {
             margin-top: 20px;
             max-width: 100%;
+        }
+
+        .section {
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -92,16 +98,31 @@
 <p><strong>Stock:</strong> {{ result.stock }}</p>
 <p><strong>Model:</strong> {{ result.model }}</p>
 
+<!-- 🔥 METRICS -->
+<div class="section">
+    <h4>📉 Model Metrics</h4>
+    <p>MAE: {{ result.metrics.MAE|default:"N/A" }}</p>
+    <p>RMSE: {{ result.metrics.RMSE|default:"N/A" }}</p>
+</div>
+
+<!-- 🔥 TREND -->
+<div class="section">
+    <h4>📈 Market Trend</h4>
+    <p>MA20: {{ result.trend.MA20|floatformat:2 }}</p>
+    <p>MA50: {{ result.trend.MA50|floatformat:2 }}</p>
+</div>
+
+<!-- 🔥 PREDICTIONS -->
 <table>
 <tr>
-<th>Date</th>
-<th>Price</th>
+    <th>Date</th>
+    <th>Predicted Price</th>
 </tr>
 
-{% for item in result.combined %}
+{% for item in result.predictions %}
 <tr>
-<td>{{ item.0 }}</td>
-<td>{{ item.1|floatformat:2 }}</td>
+    <td>{{ item.0 }}</td>
+    <td>{{ item.1|floatformat:2 }}</td>
 </tr>
 {% endfor %}
 
