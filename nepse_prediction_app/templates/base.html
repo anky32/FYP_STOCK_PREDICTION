@@ -1,0 +1,29 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NEPSE AI System</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+<nav>
+    <h2>NEPSE AI</h2>
+
+    <div>
+        <a href="/">Dashboard</a>
+        <a href="/predict/">Predict</a>
+        <a href="/analysis/">Analysis</a>
+        <a href="/feedback/">Feedback</a>
+    </div>
+</nav>
+
+<div class="container">
+    {% block content %}{% endblock %}
+</div>
+
+</body>
+</html>

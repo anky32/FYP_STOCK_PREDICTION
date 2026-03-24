@@ -87,29 +87,32 @@
     <button type="submit">Predict</button>
 </form>
 
-{% if result %}
+<!-- 🔥 DEBUG (TEMPORARY)
+<p>DEBUG: {{ data }}</p>
+
+{% if data %} -->
 
 <h3>📊 Prediction Result</h3>
 
-{% if result.error %}
-<p style="color:red;">{{ result.error }}</p>
+{% if data.error %}
+<p style="color:red;">{{ data.error }}</p>
 {% else %}
 
-<p><strong>Stock:</strong> {{ result.stock }}</p>
-<p><strong>Model:</strong> {{ result.model }}</p>
+<p><strong>Stock:</strong> {{ data.stock }}</p>
+<p><strong>Model:</strong> {{ data.model }}</p>
 
 <!-- 🔥 METRICS -->
 <div class="section">
     <h4>📉 Model Metrics</h4>
-    <p>MAE: {{ result.metrics.MAE|default:"N/A" }}</p>
-    <p>RMSE: {{ result.metrics.RMSE|default:"N/A" }}</p>
+    <p>MAE: {{ data.metrics.MAE|default:"N/A" }}</p>
+    <p>RMSE: {{ data.metrics.RMSE|default:"N/A" }}</p>
 </div>
 
 <!-- 🔥 TREND -->
 <div class="section">
     <h4>📈 Market Trend</h4>
-    <p>MA20: {{ result.trend.MA20|floatformat:2 }}</p>
-    <p>MA50: {{ result.trend.MA50|floatformat:2 }}</p>
+    <p>MA20: {{ data.trend.MA20|floatformat:2 }}</p>
+    <p>MA50: {{ data.trend.MA50|floatformat:2 }}</p>
 </div>
 
 <!-- 🔥 PREDICTIONS -->
@@ -119,16 +122,15 @@
     <th>Predicted Price</th>
 </tr>
 
-{% for item in result.predictions %}
+{% for item in data.predictions %}
 <tr>
     <td>{{ item.0 }}</td>
     <td>{{ item.1|floatformat:2 }}</td>
 </tr>
 {% endfor %}
-
 </table>
 
-<img src="data:image/png;base64,{{ result.graph }}">
+<img src="data:image/png;base64,{{ data.graph }}">
 
 {% endif %}
 {% endif %}

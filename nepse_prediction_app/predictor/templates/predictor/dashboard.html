@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Dashboard</h1>
+
+<div class="card">
+    <h3>Welcome to NEPSE Prediction System</h3>
+    <p>
+        This system uses AI models (LSTM, ARIMA, Hybrid)
+        to predict stock prices.
+    </p>
+</div>
+
+<div class="card">
+    <a href="/predict/">
+        <button>Start Prediction</button>
+    </a>
+</div>
+
+{% endblock %}
