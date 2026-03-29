@@ -1,24 +1,39 @@
 body {
     font-family: Arial;
-    background: #f4f6f8;
+    background: #bec7d0;
 }
 
 nav {
+    position: fixed;   /* 🔥 makes it sticky */
+    top: 0;
+    left: 0;
+    width: 100%;
+
     background: #002b5b;
     color: white;
     padding: 15px;
+
     display: flex;
     justify-content: space-between;
+    align-items: center;
+
+}
+
+/* NEW: wrap links */
+.nav-links {
+    display: flex;
+    gap: 25px; /* spacing between items */
 }
 
 nav a {
     color: white;
-    margin-left: 15px;
+    margin-left: 25px;
     text-decoration: none;
 }
 
 .container {
     padding: 20px;
+    margin-top: 80px;   /* 🔥 prevents overlap */
 }
 
 .card {

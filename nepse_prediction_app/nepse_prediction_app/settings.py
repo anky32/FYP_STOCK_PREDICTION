@@ -46,12 +46,12 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'nepse_prediction_app.urls'
 
 
-# TEMPLATES (FIXED)
+# TEMPLATES
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
 
-        # 🔥 IMPORTANT: Global templates folder
+        # ✅ Global templates folder
         'DIRS': [os.path.join(BASE_DIR, 'templates')],
 
         'APP_DIRS': True,
@@ -71,7 +71,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'nepse_prediction_app.wsgi.application'
 
 
-# DATABASE (SQLite)
+# DATABASE
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -107,13 +107,18 @@ USE_I18N = True
 USE_TZ = True
 
 
-# STATIC FILES (FIXED)
+# STATIC FILES
 STATIC_URL = '/static/'
 
-# 🔥 IMPORTANT: static folder support
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
+
+
+# 🔥 AUTHENTICATION SETTINGS (VERY IMPORTANT)
+LOGIN_URL = '/login/'               # where to redirect if not logged in
+LOGIN_REDIRECT_URL = '/'           # after login → dashboard
+LOGOUT_REDIRECT_URL = '/login/'    # after logout → login page
 
 
 # DEFAULT PRIMARY KEY

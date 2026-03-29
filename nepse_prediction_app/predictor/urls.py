@@ -1,9 +1,28 @@
 from django.urls import path
-from .views import predict_view, dashboard_view
-from .views import predict_view, dashboard_view, analysis_view
+from django.shortcuts import redirect
+from .views import (
+    dashboard_view,
+    predict_view,
+    analysis_view,
+    feedback_view,
+    login_view,
+    register_view,
+    logout_view
+)
+
+def home_redirect(request):
+    return redirect('/login/')
+
 
 urlpatterns = [
-    path('', dashboard_view, name='dashboard'),
+    path('', home_redirect),   # 🔥 FIRST PAGE = LOGIN
+
+    path('dashboard/', dashboard_view, name='dashboard'),
     path('predict/', predict_view, name='predict'),
     path('analysis/', analysis_view, name='analysis'),
+    path('feedback/', feedback_view, name='feedback'),
+
+    path('login/', login_view, name='login'),
+    path('register/', register_view, name='register'),
+    path('logout/', logout_view, name='logout'),
 ]

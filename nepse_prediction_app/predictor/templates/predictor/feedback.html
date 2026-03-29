@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Feedback</h2>
+
+<div class="card">
+
+{% if success %}
+<p style="color:green;">✅ Feedback submitted successfully!</p>
+{% endif %}
+
+<form method="POST">
+    {% csrf_token %}
+
+    <label>Stock</label>
+    <select name="stock">
+        <option value="GBBL">GBBL</option>
+        <option value="NABIL">NABIL</option>
+        <option value="CIT">CIT</option>
+        <option value="DDBL">DDBL</option>
+        <option value="ICFC">ICFC</option>
+        <option value="KKHC">KKHC</option>
+        <option value="NLIC">NLIC</option>
+        <option value="PRIN">PRIN</option>
+        <option value="SHL">SHL</option>
+        <option value="STC">STC</option>
+        <option value="UNL">UNL</option>
+    </select>
+
+    <label>Model Used</label>
+    <select name="model">
+        <option value="arima">ARIMA</option>
+        <option value="lstm">LSTM</option>
+        <option value="hybrid">Hybrid</option>
+    </select>
+
+    <label>Rating</label>
+    <select name="rating">
+        <option value="5">⭐⭐⭐⭐⭐</option>
+        <option value="4">⭐⭐⭐⭐</option>
+        <option value="3">⭐⭐⭐</option>
+        <option value="2">⭐⭐</option>
+        <option value="1">⭐</option>
+    </select>
+
+    <label>Comment</label>
+    <textarea name="comment" rows="4" style="width:100%;"></textarea>
+
+    <button type="submit">Submit Feedback</button>
+</form>
+
+</div>
+
+{% endblock %}
