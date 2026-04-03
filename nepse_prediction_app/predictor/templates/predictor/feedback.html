@@ -1,55 +1,104 @@
 {% extends "base.html" %}
-
 {% block content %}
 
-<h2>Feedback</h2>
+<div class="relative py-12">
+<div class="absolute inset-0 grid-bg opacity-30"></div>
+<div class="relative max-w-2xl mx-auto px-6">
 
-<div class="card">
+    <div class="mb-10">
+        <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 mb-4 border border-teal-500/15">
+            <svg class="w-3.5 h-3.5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+            <span class="text-teal-400 text-xs font-semibold uppercase tracking-wider">User Feedback</span>
+        </div>
+        <h1 class="text-4xl font-black text-white mb-2">Rate Prediction Accuracy</h1>
+        <p class="text-slate-400">Your feedback helps improve the AI models over time</p>
+    </div>
 
-{% if success %}
-<p style="color:green;">✅ Feedback submitted successfully!</p>
-{% endif %}
+    {% if success %}
+    <div class="glass rounded-2xl p-5 border border-emerald-500/25 mb-6 flex items-center gap-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        </div>
+        <div>
+            <div class="text-emerald-400 font-bold">Feedback submitted</div>
+            <div class="text-slate-400 text-sm">Thank you for helping improve NEPSE AI.</div>
+        </div>
+    </div>
+    {% endif %}
 
-<form method="POST">
-    {% csrf_token %}
-
-    <label>Stock</label>
-    <select name="stock">
-        <option value="GBBL">GBBL</option>
-        <option value="NABIL">NABIL</option>
-        <option value="CIT">CIT</option>
-        <option value="DDBL">DDBL</option>
-        <option value="ICFC">ICFC</option>
-        <option value="KKHC">KKHC</option>
-        <option value="NLIC">NLIC</option>
-        <option value="PRIN">PRIN</option>
-        <option value="SHL">SHL</option>
-        <option value="STC">STC</option>
-        <option value="UNL">UNL</option>
-    </select>
-
-    <label>Model Used</label>
-    <select name="model">
-        <option value="arima">ARIMA</option>
-        <option value="lstm">LSTM</option>
-        <option value="hybrid">Hybrid</option>
-    </select>
-
-    <label>Rating</label>
-    <select name="rating">
-        <option value="5">⭐⭐⭐⭐⭐</option>
-        <option value="4">⭐⭐⭐⭐</option>
-        <option value="3">⭐⭐⭐</option>
-        <option value="2">⭐⭐</option>
-        <option value="1">⭐</option>
-    </select>
-
-    <label>Comment</label>
-    <textarea name="comment" rows="4" style="width:100%;"></textarea>
-
-    <button type="submit">Submit Feedback</button>
-</form>
-
+    <div class="glass rounded-2xl p-8 border border-white/6">
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Stock</label>
+                    <select name="stock" class="w-full px-4 py-3 rounded-xl text-sm font-mono">
+                        <option value="GBBL">GBBL</option>
+                        <option value="NABIL">NABIL</option>
+                        <option value="CIT">CIT</option>
+                        <option value="DDBL">DDBL</option>
+                        <option value="ICFC">ICFC</option>
+                        <option value="KKHC">KKHC</option>
+                        <option value="NLIC">NLIC</option>
+                        <option value="PRIN">PRIN</option>
+                        <option value="SHL">SHL</option>
+                        <option value="STC">STC</option>
+                        <option value="UNL">UNL</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Model Used</label>
+                    <select name="model" class="w-full px-4 py-3 rounded-xl text-sm">
+                        <option value="arima">ARIMA</option>
+                        <option value="lstm">LSTM</option>
+                        <option value="hybrid">Hybrid</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-3">Rating</label>
+                <div class="flex gap-2" id="star-rating">
+                    {% for i in "12345" %}
+                    <label class="cursor-pointer">
+                        <input type="radio" name="rating" value="{{ i }}" class="hidden" {% if i == "5" %}checked{% endif %}>
+                        <svg class="w-10 h-10 star-icon transition-all hover:scale-110" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            <div>
+                <label class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Comment</label>
+                <textarea name="comment" rows="4" placeholder="Share your experience with the prediction accuracy..."
+                    class="w-full px-4 py-3 rounded-xl text-sm placeholder-slate-600 resize-none"></textarea>
+            </div>
+            <button type="submit" class="btn-primary w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
+                Submit Feedback
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+            </button>
+        </form>
+    </div>
 </div>
+</div>
+
+<style>
+.star-icon { color: rgba(255,255,255,0.1); }
+</style>
+<script>
+const stars = document.querySelectorAll('#star-rating label');
+function updateStars(idx) {
+    stars.forEach((s, j) => { s.querySelector('svg').style.color = j <= idx ? '#f59e0b' : 'rgba(255,255,255,0.1)'; });
+}
+stars.forEach((star, i) => {
+    star.addEventListener('mouseenter', () => updateStars(i));
+    star.addEventListener('mouseleave', () => {
+        const checked = document.querySelector('#star-rating input:checked');
+        updateStars(checked ? parseInt(checked.value) - 1 : -1);
+    });
+    star.addEventListener('click', () => updateStars(i));
+});
+updateStars(4); // default 5 stars
+</script>
 
 {% endblock %}

@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="min-h-screen flex items-center justify-center relative py-20">
+    <div class="absolute inset-0 grid-bg opacity-40"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full" style="background: radial-gradient(circle, rgba(20,184,166,0.06) 0%, transparent 70%);"></div>
+
+    <div class="relative w-full max-w-md px-6">
+        <!-- Logo -->
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center gap-2.5 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center glow-teal">
+                    <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                    </svg>
+                </div>
+                <span class="font-black text-2xl text-white">NEPSE<span class="text-teal-400">AI</span></span>
+            </div>
+            <!-- Shield icon -->
+            <div class="w-16 h-16 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">Verify your identity</h1>
+            <p class="text-slate-400 text-sm">We sent a 6-digit OTP to <span class="text-teal-400 font-semibold">{{ masked_email }}</span></p>
+        </div>
+
+        <div class="glass rounded-2xl p-8 border border-white/6">
+
+            {% if error %}
+            <div class="flex items-center gap-3 bg-red-500/8 border border-red-500/20 rounded-xl px-4 py-3 mb-6">
+                <svg class="w-4 h-4 text-red-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                <span class="text-red-400 text-sm">{{ error }}</span>
+            </div>
+            {% endif %}
+
+            {% if dev_otp %}
+            <div class="flex items-center gap-3 bg-yellow-500/8 border border-yellow-500/25 rounded-xl px-4 py-3 mb-6">
+                <svg class="w-4 h-4 text-yellow-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                <div>
+                    <div class="text-yellow-400 text-xs font-semibold mb-0.5">Dev Mode — Email not configured</div>
+                    <div class="text-yellow-300 text-sm">Your OTP is: <span class="font-black tracking-widest">{{ dev_otp }}</span></div>
+                </div>
+            </div>
+            {% endif %}
+
+            <form method="POST" class="space-y-5">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-3">Enter OTP</label>
+                    <!-- 6-digit OTP input boxes -->
+                    <div class="flex gap-2 justify-center" id="otp-boxes">
+                        <input type="text" maxlength="1" class="otp-digit w-12 h-14 text-center text-white text-xl font-bold rounded-xl border border-white/10 focus:border-teal-500 bg-white/4" inputmode="numeric" pattern="[0-9]">
+                        <input type="text" maxlength="1" class="otp-digit w-12 h-14 text-center text-white text-xl font-bold rounded-xl border border-white/10 focus:border-teal-500 bg-white/4" inputmode="numeric" pattern="[0-9]">
+                        <input type="text" maxlength="1" class="otp-digit w-12 h-14 text-center text-white text-xl font-bold rounded-xl border border-white/10 focus:border-teal-500 bg-white/4" inputmode="numeric" pattern="[0-9]">
+                        <input type="text" maxlength="1" class="otp-digit w-12 h-14 text-center text-white text-xl font-bold rounded-xl border border-white/10 focus:border-teal-500 bg-white/4" inputmode="numeric" pattern="[0-9]">
+                        <input type="text" maxlength="1" class="otp-digit w-12 h-14 text-center text-white text-xl font-bold rounded-xl border border-white/10 focus:border-teal-500 bg-white/4" inputmode="numeric" pattern="[0-9]">
+                        <input type="text" maxlength="1" class="otp-digit w-12 h-14 text-center text-white text-xl font-bold rounded-xl border border-white/10 focus:border-teal-500 bg-white/4" inputmode="numeric" pattern="[0-9]">
+                    </div>
+                    <!-- Hidden combined input -->
+                    <input type="hidden" name="otp" id="otp-combined">
+                </div>
+
+                <!-- Countdown -->
+                <div class="text-center text-slate-500 text-sm">
+                    Code expires in <span id="countdown" class="text-teal-400 font-semibold">10:00</span>
+                </div>
+
+                <button type="submit" id="verify-btn" class="btn-primary w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
+                    Verify OTP
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75"/></svg>
+                </button>
+            </form>
+
+            <div class="mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
+                <a href="/resend-otp/" class="text-teal-400 hover:text-teal-300 text-sm font-semibold transition-colors flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    Resend OTP
+                </a>
+                <a href="/login/" class="text-slate-500 hover:text-slate-400 text-sm transition-colors">Back to Login</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.otp-digit {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    color: #e2e8f0 !important;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.otp-digit:focus {
+    outline: none !important;
+    border-color: #14b8a6 !important;
+    box-shadow: 0 0 0 3px rgba(20,184,166,0.15) !important;
+}
+.otp-digit.filled {
+    border-color: rgba(20,184,166,0.4) !important;
+}
+</style>
+
+<script>
+const digits = document.querySelectorAll('.otp-digit');
+const combined = document.getElementById('otp-combined');
+
+digits.forEach((input, i) => {
+    input.addEventListener('input', (e) => {
+        const val = e.target.value.replace(/\D/g, '');
+        e.target.value = val;
+        if (val) {
+            e.target.classList.add('filled');
+            if (i < digits.length - 1) digits[i + 1].focus();
+        } else {
+            e.target.classList.remove('filled');
+        }
+        combined.value = Array.from(digits).map(d => d.value).join('');
+    });
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !input.value && i > 0) {
+            digits[i - 1].focus();
+            digits[i - 1].value = '';
+            digits[i - 1].classList.remove('filled');
+        }
+    });
+
+    // Handle paste
+    input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+        pasted.split('').forEach((ch, j) => {
+            if (digits[j]) { digits[j].value = ch; digits[j].classList.add('filled'); }
+        });
+        combined.value = pasted;
+        if (digits[pasted.length - 1]) digits[pasted.length - 1].focus();
+    });
+});
+
+// Countdown timer
+let seconds = 600;
+const countdownEl = document.getElementById('countdown');
+const timer = setInterval(() => {
+    seconds--;
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    countdownEl.textContent = `${m}:${s}`;
+    if (seconds <= 0) {
+        clearInterval(timer);
+        countdownEl.textContent = 'Expired';
+        countdownEl.classList.replace('text-teal-400', 'text-red-400');
+    }
+}, 1000);
+
+// Auto-submit when all 6 filled
+digits[digits.length - 1].addEventListener('input', () => {
+    if (Array.from(digits).every(d => d.value)) {
+        document.querySelector('form').submit();
+    }
+});
+</script>
+
+{% endblock %}

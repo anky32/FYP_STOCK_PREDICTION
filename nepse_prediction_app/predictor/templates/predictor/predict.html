@@ -1,146 +1,385 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>NEPSE Stock Prediction</title>
+<div class="relative min-h-screen py-12">
+<div class="absolute inset-0 grid-bg opacity-30"></div>
+<div class="relative max-w-7xl mx-auto px-6">
 
-    <style>
-        body {
-            font-family: Arial;
-            background: #f4f6f8;
-            text-align: center;
-        }
-
-        .container {
-            width: 65%;
-            margin: auto;
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            margin-top: 40px;
-        }
-
-        table {
-            margin: auto;
-            border-collapse: collapse;
-            width: 80%;
-            margin-top: 20px;
-        }
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-        }
-
-        th {
-            background: #007bff;
-            color: white;
-        }
-
-        button {
-            padding: 10px;
-            background: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        img {
-            margin-top: 20px;
-            max-width: 100%;
-        }
-
-        .section {
-            margin-top: 20px;
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="container">
-
-<h2>📈 NEPSE Stock Prediction System</h2>
-
-<form method="POST">
-    {% csrf_token %}
-
-    <select name="stock">
-        <option value="GBBL">GBBL</option>
-        <option value="CIT">CIT</option>
-        <option value="NABIL">NABIL</option>
-        <option value="DDBL">DDBL</option>
-        <option value="ICFC">ICFC</option>
-        <option value="KKHC">KKHC</option>
-        <option value="NLIC">NLIC</option>
-        <option value="PRIN">PRIN</option>
-        <option value="SHL">SHL</option>
-        <option value="STC">STC</option>
-        <option value="UNL">UNL</option>
-    </select>
-
-    <select name="model">
-        <option value="arima">ARIMA</option>
-        <option value="lstm">LSTM</option>
-        <option value="hybrid">Hybrid</option>
-    </select>
-
-    <button type="submit">Predict</button>
-</form>
-
-<!-- 🔥 DEBUG (TEMPORARY)
-<p>DEBUG: {{ data }}</p>
-
-{% if data %} -->
-
-<h3>📊 Prediction Result</h3>
-
-{% if data.error %}
-<p style="color:red;">{{ data.error }}</p>
-{% else %}
-
-<p><strong>Stock:</strong> {{ data.stock }}</p>
-<p><strong>Model:</strong> {{ data.model }}</p>
-
-<!-- 🔥 METRICS -->
-<div class="section">
-    <h4>📉 Model Metrics</h4>
-    <p>MAE: {{ data.metrics.MAE|default:"N/A" }}</p>
-    <p>RMSE: {{ data.metrics.RMSE|default:"N/A" }}</p>
+<!-- Page Header -->
+<div class="mb-10">
+    <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 mb-4 border border-teal-500/15">
+        <svg class="w-3.5 h-3.5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        <span class="text-teal-400 text-xs font-semibold uppercase tracking-wider">AI Prediction Engine</span>
+    </div>
+    <h1 class="text-4xl font-black text-white mb-2">Stock Price Forecast</h1>
+    <p class="text-slate-400">Generate a 5-day price prediction using ARIMA, LSTM, or Hybrid models</p>
 </div>
 
-<!-- 🔥 TREND -->
-<div class="section">
-    <h4>📈 Market Trend</h4>
-    <p>MA20: {{ data.trend.MA20|floatformat:2 }}</p>
-    <p>MA50: {{ data.trend.MA50|floatformat:2 }}</p>
+<div class="grid lg:grid-cols-3 gap-6">
+
+<!-- Config Panel -->
+<div class="lg:col-span-1">
+    <div class="glass rounded-2xl p-6 sticky top-24 border border-white/6">
+        <h2 class="text-white font-bold text-lg mb-6 flex items-center gap-2">
+            <div class="w-6 h-6 rounded-lg bg-teal-500/15 flex items-center justify-center">
+                <svg class="w-3.5 h-3.5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+            </div>
+            Configure
+        </h2>
+        <form method="POST" class="space-y-6" id="predict-form">
+            {% csrf_token %}
+            <div>
+                <label class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-3">Stock Symbol</label>
+                <select name="stock" class="w-full px-4 py-3 rounded-xl text-sm font-mono">
+                    <option value="GBBL" {% if data.stock == "GBBL" %}selected{% endif %}>GBBL</option>
+                    <option value="CIT" {% if data.stock == "CIT" %}selected{% endif %}>CIT</option>
+                    <option value="NABIL" {% if data.stock == "NABIL" %}selected{% endif %}>NABIL</option>
+                    <option value="DDBL" {% if data.stock == "DDBL" %}selected{% endif %}>DDBL</option>
+                    <option value="ICFC" {% if data.stock == "ICFC" %}selected{% endif %}>ICFC</option>
+                    <option value="KKHC" {% if data.stock == "KKHC" %}selected{% endif %}>KKHC</option>
+                    <option value="NLIC" {% if data.stock == "NLIC" %}selected{% endif %}>NLIC</option>
+                    <option value="PRIN" {% if data.stock == "PRIN" %}selected{% endif %}>PRIN</option>
+                    <option value="SHL" {% if data.stock == "SHL" %}selected{% endif %}>SHL</option>
+                    <option value="STC" {% if data.stock == "STC" %}selected{% endif %}>STC</option>
+                    <option value="UNL" {% if data.stock == "UNL" %}selected{% endif %}>UNL</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-3">AI Model</label>
+                <div class="space-y-2">
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-white/6 cursor-pointer hover:border-teal-500/30 transition-all group" id="lbl-arima">
+                        <input type="radio" name="model" value="arima" class="hidden" {% if data.model == "ARIMA" or not data %}checked{% endif %}>
+                        <div class="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4"/></svg>
+                        </div>
+                        <div>
+                            <div class="text-white text-sm font-semibold">ARIMA</div>
+                            <div class="text-slate-500 text-xs">Statistical model</div>
+                        </div>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-white/6 cursor-pointer hover:border-teal-500/30 transition-all" id="lbl-lstm">
+                        <input type="radio" name="model" value="lstm" class="hidden" {% if data.model == "LSTM" %}checked{% endif %}>
+                        <div class="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        </div>
+                        <div>
+                            <div class="text-white text-sm font-semibold">LSTM</div>
+                            <div class="text-slate-500 text-xs">Deep learning</div>
+                        </div>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-white/6 cursor-pointer hover:border-teal-500/30 transition-all" id="lbl-hybrid">
+                        <input type="radio" name="model" value="hybrid" class="hidden" {% if data.model == "HYBRID" %}checked{% endif %}>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        </div>
+                        <div>
+                            <div class="text-white text-sm font-semibold">Hybrid</div>
+                            <div class="text-slate-500 text-xs">ARIMA + LSTM</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <button type="submit" id="submit-btn" class="btn-primary w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                Run Prediction
+            </button>
+        </form>
+    </div>
 </div>
 
-<!-- 🔥 PREDICTIONS -->
-<table>
-<tr>
-    <th>Date</th>
-    <th>Predicted Price</th>
-</tr>
+<!-- Results Panel -->
+<div class="lg:col-span-2 space-y-5">
+    {% if data %}
+        {% if data.error %}
+        <div class="glass rounded-2xl p-6 border border-red-500/20">
+            <div class="flex items-center gap-3 text-red-400">
+                <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                <span class="font-medium">{{ data.error }}</span>
+            </div>
+        </div>
+        {% else %}
 
-{% for item in data.predictions %}
-<tr>
-    <td>{{ item.0 }}</td>
-    <td>{{ item.1|floatformat:2 }}</td>
-</tr>
-{% endfor %}
-</table>
+        <!-- Result Header -->
+        <div class="glass rounded-2xl p-6 border border-white/6 flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500/20 to-emerald-500/10 border border-teal-500/20 flex items-center justify-center">
+                    <span class="text-teal-400 font-black text-sm">{{ data.stock|slice:":2" }}</span>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-white font-black text-2xl">{{ data.stock }}</span>
+                        <span class="px-2.5 py-0.5 bg-teal-500/15 border border-teal-500/25 rounded-full text-teal-400 text-xs font-bold">{{ data.model }}</span>
+                    </div>
+                    <p class="text-slate-400 text-sm">5-day forecast generated successfully</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="pulse-dot"></div>
+                <span class="text-teal-400 text-xs font-medium">Prediction Ready</span>
+            </div>
+        </div>
 
-<img src="data:image/png;base64,{{ data.graph }}">
+        <!-- Metrics -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="glass rounded-2xl p-5 border border-white/5">
+                <div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">MAE</div>
+                <div class="text-white font-black text-2xl font-mono">{{ data.metrics.MAE|floatformat:2|default:"N/A" }}</div>
+                <div class="text-slate-500 text-xs mt-1">Mean Abs. Error</div>
+            </div>
+            <div class="glass rounded-2xl p-5 border border-white/5">
+                <div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">RMSE</div>
+                <div class="text-white font-black text-2xl font-mono">{{ data.metrics.RMSE|floatformat:2|default:"N/A" }}</div>
+                <div class="text-slate-500 text-xs mt-1">Root Mean Sq. Error</div>
+            </div>
+            <div class="glass rounded-2xl p-5 border border-white/5">
+                <div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">R² Score</div>
+                <div class="font-black text-2xl font-mono
+                    {% if data.metrics.R2 %}
+                        {% if data.metrics.R2 >= 0.8 %}text-emerald-400
+                        {% elif data.metrics.R2 >= 0.5 %}text-yellow-400
+                        {% else %}text-red-400{% endif %}
+                    {% else %}text-slate-400{% endif %}">
+                    {{ data.metrics.R2|floatformat:3|default:"N/A" }}
+                </div>
+                <div class="text-slate-500 text-xs mt-1">
+                    {% if data.metrics.R2 %}
+                        {% if data.metrics.R2 >= 0.8 %}Excellent Fit
+                        {% elif data.metrics.R2 >= 0.6 %}Good Fit
+                        {% elif data.metrics.R2 >= 0.4 %}Moderate Fit
+                        {% else %}Poor Fit{% endif %}
+                    {% else %}Goodness of Fit{% endif %}
+                </div>
+            </div>
+            <div class="glass rounded-2xl p-5 border border-white/5">
+                <div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">MA20 / MA50</div>
+                <div class="text-teal-400 font-black text-lg font-mono">{{ data.trend.MA20|floatformat:0 }}</div>
+                <div class="text-purple-400 font-mono text-sm">{{ data.trend.MA50|floatformat:0 }}</div>
+                <div class="text-slate-500 text-xs mt-1">Moving Averages</div>
+            </div>
+        </div>
 
-{% endif %}
-{% endif %}
+        <!-- Buy/Sell Signal -->
+        {% if data.trend.MA20 > data.trend.MA50 %}
+        <div class="glass rounded-2xl p-5 border border-emerald-500/20 flex items-center gap-5">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center flex-shrink-0 glow-teal-sm">
+                <svg class="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            </div>
+            <div>
+                <div class="text-emerald-400 font-black text-xl">BUY Signal</div>
+                <div class="text-slate-400 text-sm mt-0.5">MA20 ({{ data.trend.MA20|floatformat:2 }}) is above MA50 ({{ data.trend.MA50|floatformat:2 }}) — short-term momentum is bullish.</div>
+            </div>
+        </div>
+        {% else %}
+        <div class="glass rounded-2xl p-5 border border-red-500/20 flex items-center gap-5">
+            <div class="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/25 flex items-center justify-center flex-shrink-0">
+                <svg class="w-7 h-7 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>
+            </div>
+            <div>
+                <div class="text-red-400 font-black text-xl">SELL Signal</div>
+                <div class="text-slate-400 text-sm mt-0.5">MA20 ({{ data.trend.MA20|floatformat:2 }}) is below MA50 ({{ data.trend.MA50|floatformat:2 }}) — short-term momentum is bearish.</div>
+            </div>
+        </div>
+        {% endif %}
 
+        <!-- Chart -->
+        <div class="glass rounded-2xl p-6 border border-white/5">
+            <h3 class="text-white font-bold mb-4 flex items-center gap-2">
+                <svg class="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+                Historical Price, Indicators &amp; Forecast
+            </h3>
+            <img src="data:image/png;base64,{{ data.graph }}" class="chart-img w-full" alt="Prediction Chart">
+        </div>
+
+        <!-- Technical Indicators -->
+        <div class="glass rounded-2xl p-6 border border-white/5">
+            <h3 class="text-white font-bold mb-5 flex items-center gap-2">
+                <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg>
+                Technical Indicators
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+                <!-- EMA -->
+                <div class="bg-white/3 rounded-xl p-4">
+                    <div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">EMA 12</div>
+                    <div class="text-yellow-400 font-bold text-lg font-mono">{{ data.trend.EMA12|floatformat:2 }}</div>
+                    <div class="text-slate-500 text-xs mt-0.5">Short-term EMA</div>
+                </div>
+                <div class="bg-white/3 rounded-xl p-4">
+                    <div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">EMA 26</div>
+                    <div class="text-orange-400 font-bold text-lg font-mono">{{ data.trend.EMA26|floatformat:2 }}</div>
+                    <div class="text-slate-500 text-xs mt-0.5">Long-term EMA</div>
+                </div>
+                <!-- RSI -->
+                <div class="bg-white/3 rounded-xl p-4">
+                    <div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">RSI (14)</div>
+                    <div class="font-bold text-lg font-mono
+                        {% if data.trend.RSI >= 70 %}text-red-400
+                        {% elif data.trend.RSI <= 30 %}text-emerald-400
+                        {% else %}text-white{% endif %}">
+                        {{ data.trend.RSI|floatformat:1 }}
+                    </div>
+                    <div class="text-xs mt-0.5
+                        {% if data.trend.RSI >= 70 %}text-red-400
+                        {% elif data.trend.RSI <= 30 %}text-emerald-400
+                        {% else %}text-slate-500{% endif %}">
+                        {% if data.trend.RSI >= 70 %}Overbought
+                        {% elif data.trend.RSI <= 30 %}Oversold
+                        {% else %}Neutral{% endif %}
+                    </div>
+                </div>
+                <!-- BB Width -->
+                <div class="bg-white/3 rounded-xl p-4">
+                    <div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-1">BB Width</div>
+                    <div class="text-teal-400 font-bold text-lg font-mono">{{ data.trend.BB_Upper|floatformat:0 }} / {{ data.trend.BB_Lower|floatformat:0 }}</div>
+                    <div class="text-slate-500 text-xs mt-0.5">Upper / Lower Band</div>
+                </div>
+            </div>
+
+            <!-- RSI Bar -->
+            <div class="bg-white/3 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-slate-400 text-xs font-semibold">RSI Gauge</span>
+                    <span class="text-xs font-mono
+                        {% if data.trend.RSI >= 70 %}text-red-400
+                        {% elif data.trend.RSI <= 30 %}text-emerald-400
+                        {% else %}text-white{% endif %}">
+                        {{ data.trend.RSI|floatformat:1 }}
+                    </span>
+                </div>
+                <div class="relative h-3 bg-white/5 rounded-full overflow-hidden">
+                    <div class="absolute left-0 top-0 h-full rounded-full transition-all"
+                         id="rsi-bar"
+                         data-rsi="{{ data.trend.RSI|floatformat:1 }}"
+                         style="width: 0%"></div>
+                    <!-- Zone markers -->
+                    <div class="absolute top-0 h-full w-px bg-emerald-500/50" style="left:30%"></div>
+                    <div class="absolute top-0 h-full w-px bg-red-500/50" style="left:70%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-slate-600 mt-1">
+                    <span>0 — Oversold</span><span>50</span><span>Overbought — 100</span>
+                </div>
+            </div>
+
+            <!-- Bollinger Bands detail -->
+            <div class="mt-4 bg-white/3 rounded-xl p-4">
+                <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-3">Bollinger Bands (20, 2σ)</div>
+                <div class="grid grid-cols-3 gap-3 text-center">
+                    <div>
+                        <div class="text-teal-300 font-mono font-bold">{{ data.trend.BB_Upper|floatformat:2 }}</div>
+                        <div class="text-slate-500 text-xs mt-0.5">Upper Band</div>
+                    </div>
+                    <div>
+                        <div class="text-white font-mono font-bold">{{ data.trend.BB_Mid|floatformat:2 }}</div>
+                        <div class="text-slate-500 text-xs mt-0.5">Middle (SMA20)</div>
+                    </div>
+                    <div>
+                        <div class="text-teal-300 font-mono font-bold">{{ data.trend.BB_Lower|floatformat:2 }}</div>
+                        <div class="text-slate-500 text-xs mt-0.5">Lower Band</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forecast Table -->
+        <div class="glass rounded-2xl p-6 border border-white/5">
+            <h3 class="text-white font-bold mb-5 flex items-center gap-2">
+                <svg class="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                5-Day Price Forecast
+            </h3>
+            <table class="w-full data-table">
+                <thead>
+                    <tr>
+                        <th class="text-left">Day</th>
+                        <th class="text-left">Date</th>
+                        <th class="text-right">Predicted Price (NPR)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in data.predictions %}
+                    <tr>
+                        <td class="text-slate-400">Day {{ forloop.counter }}</td>
+                        <td class="text-slate-300 font-mono">{{ item.0 }}</td>
+                        <td class="text-right text-white font-bold font-mono text-base">{{ item.1|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Accuracy Report -->
+        <div class="glass rounded-2xl p-6 border border-white/5">
+            <h3 class="text-white font-bold mb-5 flex items-center gap-2">
+                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Accuracy Report
+            </h3>
+            <div class="grid grid-cols-3 gap-4 mb-4">
+                <div class="text-center bg-white/3 rounded-xl p-4">
+                    <div class="text-slate-400 text-xs uppercase tracking-wider mb-1">MAE</div>
+                    <div class="text-white font-black text-xl font-mono">{{ data.metrics.MAE|floatformat:2|default:"N/A" }}</div>
+                    <div class="text-slate-500 text-xs mt-1">Lower is better</div>
+                </div>
+                <div class="text-center bg-white/3 rounded-xl p-4">
+                    <div class="text-slate-400 text-xs uppercase tracking-wider mb-1">RMSE</div>
+                    <div class="text-white font-black text-xl font-mono">{{ data.metrics.RMSE|floatformat:2|default:"N/A" }}</div>
+                    <div class="text-slate-500 text-xs mt-1">Lower is better</div>
+                </div>
+                <div class="text-center bg-white/3 rounded-xl p-4">
+                    <div class="text-slate-400 text-xs uppercase tracking-wider mb-1">R² Score</div>
+                    <div class="font-black text-xl font-mono
+                        {% if data.metrics.R2 >= 0.8 %}text-emerald-400
+                        {% elif data.metrics.R2 >= 0.5 %}text-yellow-400
+                        {% else %}text-red-400{% endif %}">
+                        {{ data.metrics.R2|floatformat:3|default:"N/A" }}
+                    </div>
+                    <div class="text-slate-500 text-xs mt-1">Closer to 1 is better</div>
+                </div>
+            </div>
+            <div class="bg-white/3 rounded-xl p-4 text-sm text-slate-400 leading-relaxed">
+                <span class="text-white font-semibold">Interpretation: </span>
+                MAE of <span class="text-teal-400 font-mono">{{ data.metrics.MAE|floatformat:2|default:"N/A" }}</span> means the model's predictions deviate by an average of NPR {{ data.metrics.MAE|floatformat:0|default:"N/A" }} from actual prices.
+                R² of <span class="
+                    {% if data.metrics.R2 >= 0.8 %}text-emerald-400
+                    {% elif data.metrics.R2 >= 0.5 %}text-yellow-400
+                    {% else %}text-red-400{% endif %} font-mono">{{ data.metrics.R2|floatformat:3|default:"N/A" }}</span>
+                indicates the model explains
+                {% if data.metrics.R2 %}{{ data.metrics.R2|floatformat:0 }}%{% else %}an unknown portion{% endif %}
+                of the variance in stock prices.
+            </div>
+        </div>
+
+        {% endif %}
+    {% else %}
+    <!-- Empty State -->
+    <div class="glass rounded-2xl p-16 text-center border border-white/5">
+        <div class="w-20 h-20 rounded-3xl bg-teal-500/8 border border-teal-500/15 flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10 text-teal-400 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        </div>
+        <h3 class="text-white font-bold text-xl mb-2">Ready to Predict</h3>
+        <p class="text-slate-500 text-sm max-w-xs mx-auto">Select a stock symbol and AI model from the panel, then click "Run Prediction" to generate your forecast.</p>
+    </div>
+    {% endif %}
+</div>
+</div>
 </div>
 
-</body>
-</html>
+<style>
+input[type="radio"]:checked + div { border-color: rgba(20,184,166,0.5) !important; background: rgba(20,184,166,0.06); }
+label:has(input[type="radio"]:checked) { border-color: rgba(20,184,166,0.5) !important; background: rgba(20,184,166,0.06); }
+</style>
+<script>
+document.getElementById('predict-form').addEventListener('submit', function() {
+    const btn = document.getElementById('submit-btn');
+    btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> Analyzing...';
+    btn.disabled = true;
+});
 
+// RSI bar
+const rsiBar = document.getElementById('rsi-bar');
+if (rsiBar) {
+    const rsi = parseFloat(rsiBar.dataset.rsi) || 50;
+    const pct = Math.min(100, Math.max(0, rsi));
+    const color = rsi >= 70 ? '#ef4444' : rsi <= 30 ? '#22c55e' : '#14b8a6';
+    rsiBar.style.width = pct + '%';
+    rsiBar.style.background = color;
+}
+</script>
 {% endblock %}

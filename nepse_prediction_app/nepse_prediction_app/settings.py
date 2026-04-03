@@ -123,3 +123,17 @@ LOGOUT_REDIRECT_URL = '/login/'    # after logout → login page
 
 # DEFAULT PRIMARY KEY
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# EMAIL (Gmail SMTP)
+# To get App Password:
+# 1. Go to myaccount.google.com → Security → 2-Step Verification (turn ON)
+# 2. Go to myaccount.google.com/apppasswords
+# 3. Create app password → copy the 16-char code → paste below (no spaces)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'pandeyarpan84@gmail.com'
+EMAIL_HOST_PASSWORD = 'uovxcyxfdrjqubef'   # e.g. 'abcdefghijklmnop'
+DEFAULT_FROM_EMAIL = f'NEPSE AI <{EMAIL_HOST_USER}>'

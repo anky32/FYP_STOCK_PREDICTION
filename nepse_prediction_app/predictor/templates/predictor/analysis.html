@@ -1,80 +1,74 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Model Comparison</title>
+<div class="relative py-12">
+<div class="absolute inset-0 grid-bg opacity-30"></div>
+<div class="relative max-w-7xl mx-auto px-6">
 
-    <style>
-        body {
-            font-family: Arial;
-            background: #f4f6f8;
-            text-align: center;
-        }
+    <!-- Header -->
+    <div class="mb-10">
+        <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 mb-4 border border-teal-500/15">
+            <svg class="w-3.5 h-3.5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg>
+            <span class="text-teal-400 text-xs font-semibold uppercase tracking-wider">Model Comparison</span>
+        </div>
+        <h1 class="text-4xl font-black text-white mb-2">Performance Analysis</h1>
+        <p class="text-slate-400">Compare ARIMA, LSTM, and Hybrid model accuracy across all 11 NEPSE stocks</p>
+    </div>
 
-        .container {
-            width: 75%;
-            margin: auto;
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            margin-top: 40px;
-        }
+    <!-- Chart -->
+    <div class="glass rounded-2xl p-6 border border-white/5 mb-6">
+        <h2 class="text-white font-bold mb-5 flex items-center gap-2">
+            <svg class="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+            MAE Comparison — All Stocks
+        </h2>
+        <img src="data:image/png;base64,{{ graph }}" class="chart-img w-full" alt="Model Comparison Chart">
+    </div>
 
-        table {
-            margin: auto;
-            border-collapse: collapse;
-            width: 90%;
-            margin-top: 20px;
-        }
+    <!-- Legend -->
+    <div class="flex items-center gap-6 mb-6 px-2">
+        <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-teal-400"></div><span class="text-slate-400 text-sm">ARIMA</span></div>
+        <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-purple-400"></div><span class="text-slate-400 text-sm">LSTM</span></div>
+        <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-emerald-400"></div><span class="text-slate-400 text-sm">Hybrid</span></div>
+        <div class="ml-auto text-slate-500 text-xs">Lower MAE = Better accuracy</div>
+    </div>
 
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-        }
-
-        th {
-            background: #007bff;
-            color: white;
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="container">
-
-<h2>📊 Model Comparison Dashboard</h2>
-
-<!-- 🔥 GRAPH -->
-<div class="section">
-    <h3>📈 Model Performance Chart</h3>
-    <img src="data:image/png;base64,{{ graph }}" width="700">
-</div>
-
-<!-- 🔥 TABLE -->
-<table>
-<tr>
-    <th>Stock</th>
-    <th>ARIMA MAE</th>
-    <th>LSTM MAE</th>
-    <th>HYBRID MAE</th>
-</tr>
-
-{% for row in data %}
-<tr>
-    <td>{{ row.Stock }}</td>
-    <td>{{ row.ARIMA_MAE }}</td>
-    <td>{{ row.LSTM_MAE }}</td>
-    <td>{{ row.HYBRID_MAE }}</td>
-</tr>
-{% endfor %}
-</table>
+    <!-- Table -->
+    <div class="glass rounded-2xl p-6 border border-white/5">
+        <h2 class="text-white font-bold mb-5">Detailed Metrics by Stock</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full data-table">
+                <thead>
+                    <tr>
+                        <th class="text-left">Stock</th>
+                        <th class="text-right">ARIMA MAE</th>
+                        <th class="text-right">LSTM MAE</th>
+                        <th class="text-right">Hybrid MAE</th>
+                        <th class="text-right">Best Model</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in data %}
+                    <tr>
+                        <td>
+                            <span class="px-3 py-1 bg-teal-500/8 border border-teal-500/15 rounded-lg text-teal-300 font-mono font-bold text-sm">{{ row.Stock }}</span>
+                        </td>
+                        <td class="text-right text-slate-300 font-mono">{{ row.ARIMA_MAE }}</td>
+                        <td class="text-right text-slate-300 font-mono">{{ row.LSTM_MAE }}</td>
+                        <td class="text-right text-slate-300 font-mono">{{ row.HYBRID_MAE }}</td>
+                        <td class="text-right">
+                            <span class="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400 text-xs font-bold">
+                                {% if row.ARIMA_MAE <= row.LSTM_MAE and row.ARIMA_MAE <= row.HYBRID_MAE %}ARIMA
+                                {% elif row.LSTM_MAE <= row.ARIMA_MAE and row.LSTM_MAE <= row.HYBRID_MAE %}LSTM
+                                {% else %}Hybrid{% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
 </div>
-
-</body>
-</html>
-
+</div>
 {% endblock %}

@@ -1,21 +1,195 @@
 {% extends "base.html" %}
-
 {% block content %}
 
-<h2>Register</h2>
+<div class="min-h-screen flex items-center justify-center relative py-20">
+    <div class="absolute inset-0 grid-bg opacity-40"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full" style="background: radial-gradient(circle, rgba(20,184,166,0.06) 0%, transparent 70%);"></div>
 
-<div class="card">
+    <div class="relative w-full max-w-md px-6">
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center gap-2.5 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center glow-teal">
+                    <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                    </svg>
+                </div>
+                <span class="font-black text-2xl text-white">NEPSE<span class="text-teal-400">AI</span></span>
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">Create account</h1>
+            <p class="text-slate-400 text-sm">Start predicting NEPSE stocks with AI</p>
+        </div>
 
-<form method="POST">
-    {% csrf_token %}
+        <div class="glass rounded-2xl p-8 border border-white/6">
 
-    {{ form.as_p }}
+            {% if form.errors %}
+            <div class="bg-red-500/8 border border-red-500/20 rounded-xl px-4 py-3 mb-6 text-red-400 text-sm space-y-1">
+                {% for field in form %}{% for error in field.errors %}<div>{{ error }}</div>{% endfor %}{% endfor %}
+                {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+            </div>
+            {% endif %}
 
-    <button type="submit">Register</button>
-</form>
+            <form method="POST" class="space-y-4" id="register-form" novalidate>
+                {% csrf_token %}
 
-<p>Already have an account? <a href="/login/">Login</a></p>
+                <!-- Username -->
+                <div>
+                    <label class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Username</label>
+                    <input type="text" name="username" id="id_username"
+                        placeholder="Choose a username" required
+                        value="{{ form.username.value|default:'' }}"
+                        class="w-full px-4 py-3.5 rounded-xl text-sm placeholder-slate-600">
+                </div>
 
+                <!-- Email with live validation -->
+                <div>
+                    <label class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Email Address</label>
+                    <div class="relative">
+                        <input type="email" name="email" id="id_email"
+                            placeholder="Enter a valid email address" required
+                            value="{{ form.email.value|default:'' }}"
+                            class="w-full px-4 py-3.5 pr-10 rounded-xl text-sm placeholder-slate-600"
+                            autocomplete="email">
+                        <!-- Status icon -->
+                        <div id="email-icon" class="absolute right-3 top-1/2 -translate-y-1/2 hidden">
+                            <svg id="email-ok" class="w-5 h-5 text-teal-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                            <svg id="email-err" class="w-5 h-5 text-red-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </div>
+                    </div>
+                    <!-- Inline error message -->
+                    <p id="email-msg" class="text-red-400 text-xs mt-1.5 hidden flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                        <span id="email-msg-text">Please enter a valid email address</span>
+                    </p>
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Password</label>
+                    <div class="relative">
+                        <input type="password" name="password1" id="id_password1"
+                            placeholder="Create a password" required
+                            class="w-full px-4 py-3.5 pr-12 rounded-xl text-sm placeholder-slate-600">
+                        <button type="button" onclick="togglePw('id_password1', 'eye1')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-teal-400 transition-colors">
+                            <svg id="eye1" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                    <label class="block text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Confirm Password</label>
+                    <div class="relative">
+                        <input type="password" name="password2" id="id_password2"
+                            placeholder="Repeat your password" required
+                            class="w-full px-4 py-3.5 pr-12 rounded-xl text-sm placeholder-slate-600">
+                        <button type="button" onclick="togglePw('id_password2', 'eye2')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-teal-400 transition-colors">
+                            <svg id="eye2" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                    <p id="pw-msg" class="text-red-400 text-xs mt-1.5 hidden flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                        Passwords do not match
+                    </p>
+                </div>
+
+                <button type="submit" id="submit-btn" class="btn-primary w-full py-3.5 rounded-xl text-sm font-bold mt-2 flex items-center justify-center gap-2">
+                    Create Account
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                </button>
+            </form>
+
+            <div class="mt-6 pt-6 border-t border-white/5 text-center">
+                <p class="text-slate-500 text-sm">Already have an account? <a href="/login/" class="text-teal-400 hover:text-teal-300 font-semibold transition-colors">Sign in</a></p>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+function togglePw(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon  = document.getElementById(iconId);
+    const show  = input.type === 'password';
+    input.type  = show ? 'text' : 'password';
+    icon.innerHTML = show
+        ? `<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`
+        : `<path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>`;
+}
+
+const emailInput = document.getElementById('id_email');
+const emailIcon = document.getElementById('email-icon');
+const emailOk   = document.getElementById('email-ok');
+const emailErr  = document.getElementById('email-err');
+const emailMsg  = document.getElementById('email-msg');
+const emailMsgText = document.getElementById('email-msg-text');
+
+const pw1 = document.getElementById('id_password1');
+const pw2 = document.getElementById('id_password2');
+const pwMsg = document.getElementById('pw-msg');
+
+function isValidEmail(val) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val.trim());
+}
+
+function validateEmail() {
+    const val = emailInput.value.trim();
+    emailIcon.classList.remove('hidden');
+
+    if (val === '') {
+        emailOk.classList.add('hidden');
+        emailErr.classList.add('hidden');
+        emailMsg.classList.add('hidden');
+        emailIcon.classList.add('hidden');
+        return;
+    }
+
+    if (isValidEmail(val)) {
+        emailOk.classList.remove('hidden');
+        emailErr.classList.add('hidden');
+        emailMsg.classList.add('hidden');
+        emailInput.style.borderColor = 'rgba(20,184,166,0.5)';
+    } else {
+        emailOk.classList.add('hidden');
+        emailErr.classList.remove('hidden');
+        emailMsg.classList.remove('hidden');
+        emailMsgText.textContent = 'Please enter a valid email address (e.g. name@gmail.com)';
+        emailInput.style.borderColor = 'rgba(239,68,68,0.5)';
+    }
+}
+
+emailInput.addEventListener('input', validateEmail);
+emailInput.addEventListener('blur', validateEmail);
+
+pw2.addEventListener('input', () => {
+    if (pw2.value && pw1.value !== pw2.value) {
+        pwMsg.classList.remove('hidden');
+        pw2.style.borderColor = 'rgba(239,68,68,0.5)';
+    } else {
+        pwMsg.classList.add('hidden');
+        pw2.style.borderColor = pw2.value ? 'rgba(20,184,166,0.5)' : '';
+    }
+});
+
+document.getElementById('register-form').addEventListener('submit', function(e) {
+    validateEmail();
+    if (!isValidEmail(emailInput.value.trim())) {
+        e.preventDefault();
+        emailInput.focus();
+        return;
+    }
+    if (pw1.value !== pw2.value) {
+        e.preventDefault();
+        pwMsg.classList.remove('hidden');
+        pw2.focus();
+    }
+});
+</script>
 
 {% endblock %}

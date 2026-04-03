@@ -1,21 +1,184 @@
 {% extends "base.html" %}
-
 {% block content %}
 
-<h1>Dashboard</h1>
+<!-- HERO SECTION -->
+<section class="relative min-h-screen flex items-center overflow-hidden">
 
-<div class="card">
-    <h3>Welcome to NEPSE Prediction System</h3>
-    <p>
-        This system uses AI models (LSTM, ARIMA, Hybrid)
-        to predict stock prices.
-    </p>
-</div>
+    <!-- Animated background -->
+    <div class="absolute inset-0 grid-bg opacity-60"></div>
 
-<div class="card">
-    <a href="/predict/">
-        <button>Start Prediction</button>
-    </a>
-</div>
+    <!-- Radial glow -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full" style="background: radial-gradient(circle, rgba(20,184,166,0.08) 0%, transparent 70%);"></div>
+    <div class="absolute top-1/4 right-1/4 w-[400px] h-[400px] rounded-full" style="background: radial-gradient(circle, rgba(16,185,129,0.05) 0%, transparent 70%);"></div>
+
+    <!-- Floating chart decorations -->
+    <div class="absolute top-24 left-8 glass rounded-xl px-4 py-3 hidden lg:block" style="animation: float 6s ease-in-out infinite;">
+        <div class="text-xs text-slate-500 mb-1">NABIL</div>
+        <div class="text-teal-400 font-bold text-lg">1,284.50</div>
+        <div class="text-emerald-400 text-xs">▲ +2.4%</div>
+    </div>
+    <div class="absolute top-40 right-12 glass rounded-xl px-4 py-3 hidden lg:block" style="animation: float 8s ease-in-out infinite 1s;">
+        <div class="text-xs text-slate-500 mb-1">GBBL</div>
+        <div class="text-teal-400 font-bold text-lg">562.00</div>
+        <div class="text-red-400 text-xs">▼ -0.8%</div>
+    </div>
+    <div class="absolute bottom-40 left-16 glass rounded-xl px-4 py-3 hidden lg:block" style="animation: float 7s ease-in-out infinite 2s;">
+        <div class="text-xs text-slate-500 mb-1">CIT</div>
+        <div class="text-teal-400 font-bold text-lg">1,890.00</div>
+        <div class="text-emerald-400 text-xs">▲ +1.2%</div>
+    </div>
+
+    <!-- Hero Content -->
+    <div class="relative max-w-7xl mx-auto px-6 py-32 text-center w-full">
+
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-2 mb-8 border border-teal-500/20">
+            <div class="pulse-dot"></div>
+            <span class="text-teal-400 text-sm font-medium">Live Market Intelligence &bull; Powered by ML Models</span>
+        </div>
+
+        <!-- Headline -->
+        <h1 class="text-6xl md:text-7xl font-black text-white leading-tight mb-6">
+            Predict the Market<br>
+            <span class="gradient-text-green text-glow">with AI Precision</span>
+        </h1>
+
+        <!-- Subtext -->
+        <p class="text-slate-400 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+            Advanced machine learning models analyze thousands of data points, delivering accurate stock predictions, trend signals, and actionable insights for smarter investing decisions on NEPSE.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="flex items-center justify-center gap-4 mb-20">
+            <a href="/predict/" class="btn-primary px-8 py-4 rounded-xl text-base flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                Start Predicting
+            </a>
+            <a href="/analysis/" class="btn-outline px-8 py-4 rounded-xl text-base flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg>
+                View Analysis
+            </a>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
+            <div class="text-center">
+                <div class="stat-num gradient-text-green">11</div>
+                <div class="text-slate-500 text-sm mt-1">Stocks Tracked</div>
+            </div>
+            <div class="text-center">
+                <div class="stat-num gradient-text-green">3</div>
+                <div class="text-slate-500 text-sm mt-1">AI Models</div>
+            </div>
+            <div class="text-center">
+                <div class="stat-num gradient-text-green">5-Day</div>
+                <div class="text-slate-500 text-sm mt-1">Forecast Window</div>
+            </div>
+            <div class="text-center">
+                <div class="stat-num gradient-text-green">&lt;1s</div>
+                <div class="text-slate-500 text-sm mt-1">Prediction Speed</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MODELS SECTION -->
+<section class="py-24 relative">
+    <div class="absolute inset-0 grid-bg opacity-30"></div>
+    <div class="relative max-w-7xl mx-auto px-6">
+
+        <div class="text-center mb-16">
+            <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 mb-4 border border-teal-500/15">
+                <span class="text-teal-400 text-xs font-medium uppercase tracking-wider">AI Models</span>
+            </div>
+            <h2 class="text-4xl font-bold text-white mb-4">Three Powerful Prediction Engines</h2>
+            <p class="text-slate-400 max-w-xl mx-auto">Each model brings unique strengths — compare them to find the best fit for each stock.</p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+            <!-- ARIMA -->
+            <div class="glass rounded-2xl p-8 group hover:border-teal-500/30 transition-all duration-300 border border-white/5">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500/20 to-teal-500/5 border border-teal-500/20 flex items-center justify-center mb-6 group-hover:glow-teal-sm transition-all">
+                    <svg class="w-7 h-7 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
+                    </svg>
+                </div>
+                <div class="text-xs text-teal-400 font-semibold uppercase tracking-wider mb-2">Statistical</div>
+                <h3 class="text-white font-bold text-xl mb-3">ARIMA Model</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">AutoRegressive Integrated Moving Average — a proven statistical approach for capturing linear trends and seasonality in time-series data.</p>
+                <div class="mt-6 pt-6 border-t border-white/5 flex items-center justify-between text-xs text-slate-500">
+                    <span>MAE / RMSE evaluated</span>
+                    <!-- <span class="text-teal-400">Box-Jenkins</span> -->
+                </div>
+            </div>
+
+            <!-- LSTM -->
+            <div class="glass rounded-2xl p-8 group hover:border-teal-500/30 transition-all duration-300 border border-teal-500/20 relative overflow-hidden">
+                <div class="absolute top-4 right-4 px-2.5 py-1 bg-teal-500/15 border border-teal-500/25 rounded-full text-teal-400 text-xs font-semibold">Recommended</div>
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500/30 to-emerald-500/10 border border-teal-500/30 flex items-center justify-center mb-6 glow-teal-sm">
+                    <svg class="w-7 h-7 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <div class="text-xs text-teal-400 font-semibold uppercase tracking-wider mb-2">Deep Learning</div>
+                <h3 class="text-white font-bold text-xl mb-3">LSTM Network</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Long Short-Term Memory neural network — captures complex non-linear dependencies and long-range patterns in sequential stock price data.</p>
+                <div class="mt-6 pt-6 border-t border-white/5 flex items-center justify-between text-xs text-slate-500">
+                    <span>MAE / RMSE evaluated</span>
+                    <!-- <span class="text-teal-400">Hochreiter 1997</span> -->
+                </div>
+            </div>
+
+            <!-- Hybrid -->
+            <div class="glass rounded-2xl p-8 group hover:border-teal-500/30 transition-all duration-300 border border-white/5">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/5 border border-emerald-500/20 flex items-center justify-center mb-6 group-hover:glow-teal-sm transition-all">
+                    <svg class="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                </div>
+                <div class="text-xs text-emerald-400 font-semibold uppercase tracking-wider mb-2">Combined</div>
+                <h3 class="text-white font-bold text-xl mb-3">Hybrid Model</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Combines ARIMA's linear forecasting with LSTM's deep learning — delivering improved accuracy across diverse market conditions.</p>
+                <div class="mt-6 pt-6 border-t border-white/5 flex items-center justify-between text-xs text-slate-500">
+                    <span>MAE / RMSE evaluated</span>
+                    <span class="text-teal-400">ARIMA + LSTM</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STOCKS SECTION -->
+<section class="py-16">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="glass rounded-3xl p-10 border border-white/5 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 rounded-full" style="background: radial-gradient(circle, rgba(20,184,166,0.06) 0%, transparent 70%);"></div>
+            <div class="relative">
+                <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white mb-1">Supported Stocks</h2>
+                        <p class="text-slate-400 text-sm">11 NEPSE-listed companies available for prediction</p>
+                    </div>
+                    <a href="/predict/" class="btn-primary px-6 py-2.5 rounded-xl text-sm">Run Prediction →</a>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    {% for stock in stocks %}
+                    <a href="/predict/" class="group flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/8 hover:border-teal-500/40 hover:bg-teal-500/5 transition-all duration-200">
+                        <div class="w-2 h-2 rounded-full bg-teal-500 opacity-60 group-hover:opacity-100"></div>
+                        <span class="text-slate-300 group-hover:text-teal-400 font-mono font-semibold text-sm transition-colors">{{ stock }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+}
+</style>
 
 {% endblock %}
