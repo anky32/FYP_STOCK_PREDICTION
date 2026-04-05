@@ -1,73 +1,231 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="relative py-12">
-<div class="absolute inset-0 grid-bg opacity-30"></div>
-<div class="relative max-w-7xl mx-auto px-6">
+<!-- White page override -->
+<style>
+  .analysis-page { background: #F1F5F9; min-height: 100vh; }
 
-    <!-- Header -->
-    <div class="mb-10">
-        <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 mb-4 border border-teal-500/15">
-            <svg class="w-3.5 h-3.5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg>
-            <span class="text-teal-400 text-xs font-semibold uppercase tracking-wider">Model Comparison</span>
-        </div>
-        <h1 class="text-4xl font-black text-white mb-2">Performance Analysis</h1>
-        <p class="text-slate-400">Compare ARIMA, LSTM, and Hybrid model accuracy across all 11 NEPSE stocks</p>
+  .card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
+    border: 1px solid #E2E8F0;
+  }
+
+  .section-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #EFF6FF; border: 1px solid #BFDBFE;
+    border-radius: 999px; padding: 4px 14px;
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.07em; color: #3B82F6;
+  }
+
+  .metric-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: 8px;
+    font-size: 0.78rem; font-weight: 700;
+  }
+
+  /* table overrides for white bg */
+  .w-table th {
+    color: #64748B; font-size: 0.78rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    padding: 0 0 12px 0; border-bottom: 2px solid #E2E8F0;
+  }
+  .w-table td {
+    padding: 13px 0; border-bottom: 1px solid #F1F5F9;
+    font-size: 0.95rem; color: #334155;
+  }
+  .w-table tr:last-child td { border-bottom: none; }
+  .w-table tr:hover td { background: #F8FAFC; }
+
+  .stock-tag {
+    display: inline-block; padding: 3px 10px;
+    background: #EFF6FF; border: 1px solid #BFDBFE;
+    border-radius: 8px; color: #2563EB;
+    font-family: monospace; font-weight: 700; font-size: 0.85rem;
+  }
+
+  .best-tag {
+    display: inline-block; padding: 3px 10px;
+    background: #ECFDF5; border: 1px solid #6EE7B7;
+    border-radius: 8px; color: #059669;
+    font-weight: 700; font-size: 0.8rem;
+  }
+
+  /* legend dots */
+  .dot-blue   { width:12px; height:12px; border-radius:50%; background:#3B82F6; flex-shrink:0; }
+  .dot-violet { width:12px; height:12px; border-radius:50%; background:#8B5CF6; flex-shrink:0; }
+  .dot-green  { width:12px; height:12px; border-radius:50%; background:#10B981; flex-shrink:0; }
+
+  /* R2 colour classes */
+  .r2-excellent { color: #059669; font-weight: 700; }
+  .r2-good      { color: #D97706; font-weight: 700; }
+  .r2-moderate  { color: #EA580C; font-weight: 700; }
+  .r2-poor      { color: #DC2626; font-weight: 700; }
+</style>
+
+<div class="analysis-page py-12">
+<div class="max-w-7xl mx-auto px-6">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="mb-10">
+    <span class="section-badge mb-4">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/>
+      </svg>
+      Model Comparison
+    </span>
+    <h1 class="text-4xl font-black text-slate-900 mt-3 mb-2">Performance Analysis</h1>
+    <p class="text-slate-500 text-lg">Compare ARIMA, LSTM, and Hybrid model accuracy across all 11 NEPSE stocks</p>
+  </div>
+
+  <!-- ── Colour legend ──────────────────────────────────────────────────── -->
+  <div class="card p-5 mb-6 flex flex-wrap items-center gap-6">
+    <span class="text-slate-500 text-sm font-semibold uppercase tracking-wider">Models</span>
+    <div class="flex items-center gap-2"><div class="dot-blue"></div><span class="text-slate-700 font-semibold">ARIMA</span></div>
+    <div class="flex items-center gap-2"><div class="dot-violet"></div><span class="text-slate-700 font-semibold">LSTM</span></div>
+    <div class="flex items-center gap-2"><div class="dot-green"></div><span class="text-slate-700 font-semibold">Hybrid</span></div>
+    <div class="ml-auto flex gap-6 text-sm text-slate-400">
+      <span>MAE — lower is better</span>
+      {% if has_r2 %}<span>R² — closer to 1.0 is better</span>{% endif %}
     </div>
+  </div>
 
-    <!-- Chart -->
-    <div class="glass rounded-2xl p-6 border border-white/5 mb-6">
-        <h2 class="text-white font-bold mb-5 flex items-center gap-2">
-            <svg class="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
-            MAE Comparison — All Stocks
+  <!-- ── MAE Chart ──────────────────────────────────────────────────────── -->
+  <div class="card p-6 mb-6">
+    <div class="flex items-start justify-between mb-4 flex-wrap gap-3">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+          <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
+          </svg>
+          MAE Comparison — All Stocks
         </h2>
-        <img src="data:image/png;base64,{{ graph }}" class="chart-img w-full" alt="Model Comparison Chart">
+        <p class="text-slate-400 text-sm mt-1">Mean Absolute Error — lower values indicate more accurate predictions</p>
+      </div>
+      <span class="metric-pill" style="background:#EFF6FF;color:#3B82F6;border:1px solid #BFDBFE;">MAE Metric</span>
     </div>
+    <img src="data:image/png;base64,{{ graph }}" class="w-full rounded-xl" style="border:1px solid #E2E8F0;" alt="MAE Chart">
+  </div>
 
-    <!-- Legend -->
-    <div class="flex items-center gap-6 mb-6 px-2">
-        <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-teal-400"></div><span class="text-slate-400 text-sm">ARIMA</span></div>
-        <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-purple-400"></div><span class="text-slate-400 text-sm">LSTM</span></div>
-        <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-emerald-400"></div><span class="text-slate-400 text-sm">Hybrid</span></div>
-        <div class="ml-auto text-slate-500 text-xs">Lower MAE = Better accuracy</div>
+  <!-- ── R² Chart ───────────────────────────────────────────────────────── -->
+  {% if has_r2 and r2_graph %}
+  <div class="card p-6 mb-6">
+    <div class="flex items-start justify-between mb-4 flex-wrap gap-3">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+          <svg class="w-5 h-5 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          R² Score Comparison — All Stocks
+        </h2>
+        <p class="text-slate-400 text-sm mt-1">Goodness of fit — closer to 1.0 is better &nbsp;·&nbsp; negative values indicate poor fit</p>
+      </div>
+      <span class="metric-pill" style="background:#F5F3FF;color:#7C3AED;border:1px solid #DDD6FE;">R² Metric</span>
     </div>
+    <img src="data:image/png;base64,{{ r2_graph }}" class="w-full rounded-xl" style="border:1px solid #E2E8F0;" alt="R² Chart">
 
-    <!-- Table -->
-    <div class="glass rounded-2xl p-6 border border-white/5">
-        <h2 class="text-white font-bold mb-5">Detailed Metrics by Stock</h2>
-        <div class="overflow-x-auto">
-            <table class="w-full data-table">
-                <thead>
-                    <tr>
-                        <th class="text-left">Stock</th>
-                        <th class="text-right">ARIMA MAE</th>
-                        <th class="text-right">LSTM MAE</th>
-                        <th class="text-right">Hybrid MAE</th>
-                        <th class="text-right">Best Model</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in data %}
-                    <tr>
-                        <td>
-                            <span class="px-3 py-1 bg-teal-500/8 border border-teal-500/15 rounded-lg text-teal-300 font-mono font-bold text-sm">{{ row.Stock }}</span>
-                        </td>
-                        <td class="text-right text-slate-300 font-mono">{{ row.ARIMA_MAE }}</td>
-                        <td class="text-right text-slate-300 font-mono">{{ row.LSTM_MAE }}</td>
-                        <td class="text-right text-slate-300 font-mono">{{ row.HYBRID_MAE }}</td>
-                        <td class="text-right">
-                            <span class="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400 text-xs font-bold">
-                                {% if row.ARIMA_MAE <= row.LSTM_MAE and row.ARIMA_MAE <= row.HYBRID_MAE %}ARIMA
-                                {% elif row.LSTM_MAE <= row.ARIMA_MAE and row.LSTM_MAE <= row.HYBRID_MAE %}LSTM
-                                {% else %}Hybrid{% endif %}
-                            </span>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <!-- R2 legend -->
+    <div class="mt-5 pt-4 border-t border-slate-100 flex flex-wrap gap-5 text-sm">
+      <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span><span class="text-slate-600">≥ 0.8 — Excellent</span></div>
+      <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span><span class="text-slate-600">0.5 – 0.8 — Good</span></div>
+      <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-orange-500 inline-block"></span><span class="text-slate-600">0 – 0.5 — Moderate</span></div>
+      <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span><span class="text-slate-600">&lt; 0 — Poor fit</span></div>
     </div>
+  </div>
+  {% endif %}
+
+  <!-- ── Metrics Table ──────────────────────────────────────────────────── -->
+  <div class="card p-6">
+    <h2 class="text-xl font-bold text-slate-900 mb-6">Detailed Metrics by Stock</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full w-table">
+        <thead>
+          <tr>
+            <th class="text-left pr-4">Stock</th>
+            <th class="text-right pr-4">
+              <span class="flex items-center justify-end gap-1.5">
+                <span class="dot-blue"></span>ARIMA MAE
+              </span>
+            </th>
+            <th class="text-right pr-4">
+              <span class="flex items-center justify-end gap-1.5">
+                <span class="dot-violet"></span>LSTM MAE
+              </span>
+            </th>
+            <th class="text-right pr-4">
+              <span class="flex items-center justify-end gap-1.5">
+                <span class="dot-green"></span>Hybrid MAE
+              </span>
+            </th>
+            {% if has_r2 %}
+            <th class="text-right pr-4">
+              <span class="flex items-center justify-end gap-1.5">
+                <span class="dot-blue"></span>ARIMA R²
+              </span>
+            </th>
+            <th class="text-right pr-4">
+              <span class="flex items-center justify-end gap-1.5">
+                <span class="dot-violet"></span>LSTM R²
+              </span>
+            </th>
+            <th class="text-right pr-4">
+              <span class="flex items-center justify-end gap-1.5">
+                <span class="dot-green"></span>Hybrid R²
+              </span>
+            </th>
+            {% endif %}
+            <th class="text-right">Best Model</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in data %}
+          <tr>
+            <td class="pr-4 font-mono">
+              <span class="stock-tag">{{ row.Stock }}</span>
+            </td>
+            <td class="text-right pr-4 font-mono text-blue-600 font-semibold">{{ row.ARIMA_MAE|floatformat:2 }}</td>
+            <td class="text-right pr-4 font-mono text-violet-600 font-semibold">{{ row.LSTM_MAE|floatformat:2 }}</td>
+            <td class="text-right pr-4 font-mono text-emerald-600 font-semibold">{{ row.HYBRID_MAE|floatformat:2 }}</td>
+
+            {% if has_r2 %}
+            <td class="text-right pr-4 font-mono
+              {% if row.ARIMA_R2 >= 0.8 %}r2-excellent
+              {% elif row.ARIMA_R2 >= 0.5 %}r2-good
+              {% elif row.ARIMA_R2 >= 0 %}r2-moderate
+              {% else %}r2-poor{% endif %}">
+              {{ row.ARIMA_R2|floatformat:3 }}
+            </td>
+            <td class="text-right pr-4 font-mono
+              {% if row.LSTM_R2 >= 0.8 %}r2-excellent
+              {% elif row.LSTM_R2 >= 0.5 %}r2-good
+              {% elif row.LSTM_R2 >= 0 %}r2-moderate
+              {% else %}r2-poor{% endif %}">
+              {{ row.LSTM_R2|floatformat:3 }}
+            </td>
+            <td class="text-right pr-4 font-mono
+              {% if row.HYBRID_R2 >= 0.8 %}r2-excellent
+              {% elif row.HYBRID_R2 >= 0.5 %}r2-good
+              {% elif row.HYBRID_R2 >= 0 %}r2-moderate
+              {% else %}r2-poor{% endif %}">
+              {{ row.HYBRID_R2|floatformat:3 }}
+            </td>
+            {% endif %}
+
+            <td class="text-right">
+              <span class="best-tag">
+                {% if row.ARIMA_MAE <= row.LSTM_MAE and row.ARIMA_MAE <= row.HYBRID_MAE %}ARIMA
+                {% elif row.LSTM_MAE <= row.ARIMA_MAE and row.LSTM_MAE <= row.HYBRID_MAE %}LSTM
+                {% else %}Hybrid{% endif %}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 
 </div>
 </div>

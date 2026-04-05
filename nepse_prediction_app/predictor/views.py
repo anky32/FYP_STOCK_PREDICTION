@@ -47,27 +47,79 @@ def analysis_view(request):
     df = pd.read_csv(file_path)
     data = df.to_dict(orient="records")
 
-    stocks = df["Stock"]
-    arima = df["ARIMA_MAE"]
-    lstm = df["LSTM_MAE"]
-    hybrid = df["HYBRID_MAE"]
+    stocks = list(df["Stock"])
+    arima_mae  = list(df["ARIMA_MAE"])
+    lstm_mae   = list(df["LSTM_MAE"])
+    hybrid_mae = list(df["HYBRID_MAE"])
     x = range(len(stocks))
 
-    plt.figure(figsize=(10, 5))
-    plt.bar(x, arima, width=0.2, label="ARIMA")
-    plt.bar([i + 0.2 for i in x], lstm, width=0.2, label="LSTM")
-    plt.bar([i + 0.4 for i in x], hybrid, width=0.2, label="Hybrid")
-    plt.xticks([i + 0.2 for i in x], stocks, rotation=45)
-    plt.legend()
-    plt.title("Model Comparison (MAE)")
+    has_r2 = all(c in df.columns for c in ["ARIMA_R2", "LSTM_R2", "HYBRID_R2"])
+    arima_r2  = list(df["ARIMA_R2"])  if has_r2 else []
+    lstm_r2   = list(df["LSTM_R2"])   if has_r2 else []
+    hybrid_r2 = list(df["HYBRID_R2"]) if has_r2 else []
 
-    buffer = BytesIO()
-    plt.savefig(buffer, format="png")
-    buffer.seek(0)
-    graph = base64.b64encode(buffer.getvalue()).decode()
-    buffer.close()
+    # shared style helpers
+    C_ARIMA  = '#3B82F6'   # blue
+    C_LSTM   = '#8B5CF6'   # violet
+    C_HYBRID = '#10B981'   # emerald
+    w = 0.25
 
-    return render(request, "predictor/analysis.html", {"data": data, "graph": graph})
+    def _style_ax_white(ax, title, ylabel):
+        ax.set_facecolor('#F8FAFC')
+        ax.set_title(title, color='#1E293B', fontsize=13, fontweight='bold', pad=14)
+        ax.set_ylabel(ylabel, color='#64748B', fontsize=10)
+        ax.tick_params(colors='#64748B', labelsize=9)
+        for spine in ax.spines.values():
+            spine.set_color('#E2E8F0')
+        ax.yaxis.grid(True, color='#E2E8F0', linewidth=0.8, linestyle='--')
+        ax.set_axisbelow(True)
+        ax.legend(fontsize=10, framealpha=0.9, edgecolor='#E2E8F0',
+                  facecolor='white', labelcolor='#1E293B')
+
+    # ── MAE chart ──────────────────────────────────────────────────────────
+    fig, ax = plt.subplots(figsize=(13, 5), facecolor='white')
+    ax.bar([i - w for i in x], arima_mae,  width=w, label="ARIMA",  color=C_ARIMA,  alpha=0.88)
+    ax.bar(list(x),             lstm_mae,   width=w, label="LSTM",   color=C_LSTM,   alpha=0.88)
+    ax.bar([i + w for i in x],  hybrid_mae, width=w, label="Hybrid", color=C_HYBRID, alpha=0.88)
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(stocks, rotation=45, ha='right', color='#334155', fontsize=10)
+    _style_ax_white(ax, 'MAE Comparison — All Stocks', 'MAE  (lower is better)')
+    plt.tight_layout()
+
+    buf = BytesIO()
+    plt.savefig(buf, format='png', dpi=130, bbox_inches='tight', facecolor='white')
+    buf.seek(0)
+    mae_graph = base64.b64encode(buf.getvalue()).decode()
+    buf.close()
+    plt.close()
+
+    # ── R2 chart ───────────────────────────────────────────────────────────
+    r2_graph = None
+    if has_r2:
+        fig2, ax2 = plt.subplots(figsize=(13, 5), facecolor='white')
+        ax2.bar([i - w for i in x], arima_r2,  width=w, label="ARIMA",  color=C_ARIMA,  alpha=0.88)
+        ax2.bar(list(x),            lstm_r2,   width=w, label="LSTM",   color=C_LSTM,   alpha=0.88)
+        ax2.bar([i + w for i in x], hybrid_r2, width=w, label="Hybrid", color=C_HYBRID, alpha=0.88)
+        ax2.axhline(0, color='#EF4444', linewidth=1.2, linestyle='--', alpha=0.7, label='Zero line')
+        ax2.axhline(1, color='#94A3B8', linewidth=1,   linestyle=':',  alpha=0.6, label='Perfect fit (1.0)')
+        ax2.set_xticks(list(x))
+        ax2.set_xticklabels(stocks, rotation=45, ha='right', color='#334155', fontsize=10)
+        _style_ax_white(ax2, 'R² Score Comparison — All Stocks', 'R²  (closer to 1.0 is better)')
+        plt.tight_layout()
+
+        buf2 = BytesIO()
+        plt.savefig(buf2, format='png', dpi=130, bbox_inches='tight', facecolor='white')
+        buf2.seek(0)
+        r2_graph = base64.b64encode(buf2.getvalue()).decode()
+        buf2.close()
+        plt.close()
+
+    return render(request, "predictor/analysis.html", {
+        "data":      data,
+        "graph":     mae_graph,
+        "r2_graph":  r2_graph,
+        "has_r2":    has_r2,
+    })
 
 
 # 🔹 FEEDBACK

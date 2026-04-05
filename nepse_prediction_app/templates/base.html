@@ -44,7 +44,7 @@
         .btn-outline:hover { background: rgba(45,212,191,0.08); border-color: #2dd4bf; }
 
         /* Nav */
-        .nav-link { color: #94a3b8; transition: color 0.2s; font-size: 0.875rem; font-weight: 500; }
+        .nav-link { color: #94a3b8; transition: color 0.2s; font-size: 1rem; font-weight: 500; }
         .nav-link:hover, .nav-link.active { color: #2dd4bf; }
 
         /* Inputs */
@@ -52,6 +52,7 @@
             background: rgba(255,255,255,0.04) !important;
             border: 1px solid rgba(255,255,255,0.1) !important;
             color: #e2e8f0 !important;
+            font-size: 1rem !important;
             transition: border-color 0.2s;
         }
         input:focus, select:focus, textarea:focus {
@@ -74,11 +75,11 @@
         ::-webkit-scrollbar-thumb { background: #14b8a6; border-radius: 3px; }
 
         /* Stat number animation */
-        .stat-num { font-weight: 800; font-size: 2rem; line-height: 1; }
+        .stat-num { font-weight: 800; font-size: 2.5rem; line-height: 1; }
 
         /* Table */
-        .data-table th { color: #64748b; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        .data-table td { padding: 0.875rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.875rem; }
+        .data-table th { color: #64748b; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .data-table td { padding: 0.875rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 1rem; }
         .data-table tr:last-child td { border-bottom: none; }
         .data-table tr:hover td { background: rgba(20,184,166,0.03); }
 
@@ -102,7 +103,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                 </svg>
             </div>
-            <span class="font-bold text-lg text-white">NEPSE<span class="text-teal-400">AI</span></span>
+            <span class="font-bold text-xl text-white">NEPSE<span class="text-teal-400">AI</span></span>
         </a>
 
         <!-- Nav Links -->
@@ -125,9 +126,9 @@
             {% if user.is_authenticated %}
             <div class="hidden md:flex items-center gap-2 px-3 py-1.5 glass rounded-lg">
                 <div class="w-6 h-6 rounded-full bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-black text-xs font-bold">{{ user.username|first|upper }}</div>
-                <span class="text-slate-300 text-sm">{{ user.username }}</span>
+                <span class="text-slate-300 text-base">{{ user.username }}</span>
             </div>
-            <a href="/logout/" class="btn-outline px-4 py-2 rounded-lg text-sm font-medium">Logout</a>            {% else %}
+            <a href="/logout/" class="btn-outline px-4 py-2 rounded-lg text-base font-medium">Logout</a>            {% else %}
             <a href="/login/" class="nav-link px-4 py-2">Log in</a>
             <a href="/register/" class="btn-primary px-5 py-2 rounded-lg text-sm">Get Started</a>
             {% endif %}
