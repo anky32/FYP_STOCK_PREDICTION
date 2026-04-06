@@ -132,4 +132,4 @@ for file in os.listdir(data_folder):
         print("Saved:", save_path)
 
 
-print("\n✅ All plots generated successfully.")
+print("\n All plots generated successfully.")

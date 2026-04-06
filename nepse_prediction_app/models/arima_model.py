@@ -10,3 +10,5 @@ def run_arima_model(df):
     forecast = model_fit.forecast(steps=5)
 
     return forecast.tolist()
+
+    #called live by web page 

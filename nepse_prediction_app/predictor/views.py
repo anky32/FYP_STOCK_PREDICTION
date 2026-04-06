@@ -211,7 +211,7 @@ def login_view(request):
     return render(request, "predictor/login.html", {"error": error})
 
 
-# 🔹 OTP VERIFY
+#  OTP VERIFY
 def verify_otp_view(request):
     username = request.session.get('otp_username')
     if not username:
@@ -258,7 +258,7 @@ def verify_otp_view(request):
     })
 
 
-# 🔹 RESEND OTP
+# RESEND OTP
 def resend_otp_view(request):
     username = request.session.get('otp_username')
     if not username:
@@ -281,7 +281,7 @@ def resend_otp_view(request):
     return redirect('verify_otp')
 
 
-# 🔹 REGISTER
+# REGISTER
 def register_view(request):
     form = RegisterForm()
     if request.method == "POST":
@@ -292,7 +292,7 @@ def register_view(request):
     return render(request, "predictor/register.html", {"form": form})
 
 
-# 🔹 LOGOUT
+#  LOGOUT
 def logout_view(request):
     logout(request)
     return redirect('/login/')
