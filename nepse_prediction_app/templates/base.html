@@ -124,11 +124,20 @@
         <!-- Auth -->
         <div class="flex items-center gap-3">
             {% if user.is_authenticated %}
+            {% if user.is_superuser %}
+            <a href="/admin-panel/" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold text-red-400 border border-red-500/25 hover:bg-red-500/10 transition-all">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+                </svg>
+                Admin Panel
+            </a>
+            {% endif %}
             <div class="hidden md:flex items-center gap-2 px-3 py-1.5 glass rounded-lg">
                 <div class="w-6 h-6 rounded-full bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-black text-xs font-bold">{{ user.username|first|upper }}</div>
                 <span class="text-slate-300 text-base">{{ user.username }}</span>
             </div>
-            <a href="/logout/" class="btn-outline px-4 py-2 rounded-lg text-base font-medium">Logout</a>            {% else %}
+            <a href="/logout/" class="btn-outline px-4 py-2 rounded-lg text-base font-medium">Logout</a>
+            {% else %}
             <a href="/login/" class="nav-link px-4 py-2">Log in</a>
             <a href="/register/" class="btn-primary px-5 py-2 rounded-lg text-sm">Get Started</a>
             {% endif %}

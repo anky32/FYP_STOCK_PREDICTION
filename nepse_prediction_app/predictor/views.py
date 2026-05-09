@@ -136,25 +136,28 @@ def feedback_view(request):
             stock=stock, model=model, rating=rating, comment=comment
         )
 
-        # Notify admin
+        # Send email in background thread so page doesn't wait
+        import threading
         stars = '★' * int(rating) + '☆' * (5 - int(rating))
-        try:
-            send_mail(
-                subject=f"[NEPSE AI] New Feedback — {stock} ({model})",
-                message=(
-                    f"New feedback received on NEPSE AI\n\n"
-                    f"Stock  : {stock}\n"
-                    f"Model  : {model.upper()}\n"
-                    f"Rating : {stars} ({rating}/5)\n"
-                    f"User   : {request.user.username} ({request.user.email})\n\n"
-                    f"Comment:\n{comment or 'No comment provided'}\n"
-                ),
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=['pandeyarpan84@gmail.com'],
-                fail_silently=True,
-            )
-        except Exception as e:
-            print(f"[FEEDBACK EMAIL ERROR] {e}")
+        def _send():
+            try:
+                send_mail(
+                    subject=f"[NEPSE AI] New Feedback — {stock} ({model})",
+                    message=(
+                        f"New feedback received on NEPSE AI\n\n"
+                        f"Stock  : {stock}\n"
+                        f"Model  : {model.upper()}\n"
+                        f"Rating : {stars} ({rating}/5)\n"
+                        f"User   : {request.user.username} ({request.user.email})\n\n"
+                        f"Comment:\n{comment or 'No comment provided'}\n"
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=['pandeyarpan84@gmail.com'],
+                    fail_silently=True,
+                )
+            except Exception as e:
+                print(f"[FEEDBACK EMAIL ERROR] {e}")
+        threading.Thread(target=_send, daemon=True).start()
 
         success = True
     return render(request, "predictor/feedback.html", {"success": success})
@@ -296,3 +299,110 @@ def register_view(request):
 def logout_view(request):
     logout(request)
     return redirect('/login/')
+
+
+# ─────────────────────────────────────────────
+#  ADMIN PANEL
+# ─────────────────────────────────────────────
+
+def _admin_required(view_func):
+    """Decorator: only superusers can access admin views."""
+    from functools import wraps
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated or not request.user.is_superuser:
+            return redirect('/admin-login/')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+
+def admin_login_view(request):
+    error = None
+    if request.user.is_authenticated and request.user.is_superuser:
+        return redirect('/admin-panel/')
+
+    if request.method == "POST":
+        username = request.POST.get("username", "").strip()
+        password = request.POST.get("password")
+        user = authenticate(request, username=username, password=password)
+        if user and user.is_superuser:
+            login(request, user)
+            return redirect('/admin-panel/')
+        else:
+            error = "Invalid credentials or not an admin account."
+
+    return render(request, "predictor/admin_login.html", {"error": error})
+
+
+def admin_logout_view(request):
+    logout(request)
+    return redirect('/admin-login/')
+
+
+@_admin_required
+def admin_panel_view(request):
+    total_users    = User.objects.filter(is_superuser=False).count()
+    total_feedback = Feedback.objects.count()
+    avg_rating     = Feedback.objects.values_list('rating', flat=True)
+    avg            = round(sum(avg_rating) / len(avg_rating), 1) if avg_rating else 0
+    recent_logins  = OTPCode.objects.order_by('-created_at')[:5]
+
+    # rating distribution
+    from django.db.models import Count
+    rating_dist = (
+        Feedback.objects
+        .values('rating')
+        .annotate(count=Count('rating'))
+        .order_by('rating')
+    )
+
+    return render(request, "predictor/admin_panel.html", {
+        "total_users":    total_users,
+        "total_feedback": total_feedback,
+        "avg_rating":     avg,
+        "recent_logins":  recent_logins,
+        "rating_dist":    list(rating_dist),
+    })
+
+
+@_admin_required
+def admin_users_view(request):
+    # delete user
+    if request.method == "POST":
+        uid = request.POST.get("delete_user_id")
+        if uid:
+            User.objects.filter(id=uid, is_superuser=False).delete()
+        return redirect('/admin-panel/users/')
+
+    users = User.objects.filter(is_superuser=False).order_by('-date_joined')
+    return render(request, "predictor/admin_users.html", {"users": users})
+
+
+@_admin_required
+def admin_feedback_view(request):
+    # delete feedback
+    if request.method == "POST":
+        fid = request.POST.get("delete_feedback_id")
+        if fid:
+            Feedback.objects.filter(id=fid).delete()
+        return redirect('/admin-panel/feedback/')
+
+    filter_stock = request.GET.get("stock", "")
+    filter_model = request.GET.get("model", "")
+    filter_rating = request.GET.get("rating", "")
+
+    feedbacks = Feedback.objects.all().order_by('-created_at')
+    if filter_stock:
+        feedbacks = feedbacks.filter(stock=filter_stock)
+    if filter_model:
+        feedbacks = feedbacks.filter(model=filter_model)
+    if filter_rating:
+        feedbacks = feedbacks.filter(rating=filter_rating)
+
+    return render(request, "predictor/admin_feedback.html", {
+        "feedbacks":      feedbacks,
+        "filter_stock":   filter_stock,
+        "filter_model":   filter_model,
+        "filter_rating":  filter_rating,
+        "stocks":         STOCKS,
+    })
