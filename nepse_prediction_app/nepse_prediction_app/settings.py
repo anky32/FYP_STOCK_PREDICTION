@@ -117,8 +117,12 @@ STATICFILES_DIRS = [
 
 # 🔥 AUTHENTICATION SETTINGS (VERY IMPORTANT)
 LOGIN_URL = '/login/'               # where to redirect if not logged in
-LOGIN_REDIRECT_URL = '/'           # after login → dashboard
+LOGIN_REDIRECT_URL = '/dashboard/' # after login → dashboard
 LOGOUT_REDIRECT_URL = '/login/'    # after logout → login page
+
+# SESSION — expire when browser closes, no persistent cookie
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 60 * 60 * 8   # max 8 hours even if browser stays open
 
 
 # DEFAULT PRIMARY KEY

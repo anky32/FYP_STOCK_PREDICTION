@@ -167,6 +167,10 @@ def feedback_view(request):
 def login_view(request):
     error = None
 
+    # Already logged in → go straight to dashboard
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+
     if request.method == "POST":
         identifier = request.POST.get("username", "").strip()
         password = request.POST.get("password")

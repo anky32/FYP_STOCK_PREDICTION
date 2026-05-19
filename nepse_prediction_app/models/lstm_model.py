@@ -27,7 +27,7 @@ def run_lstm_model(df, stock_name="default"):
     X = X.reshape(X.shape[0], X.shape[1], 1)
 
     # ============================
-    # 🔥 LOAD MODEL IF EXISTS
+    #  LOAD MODEL IF EXISTS
     # ============================
     if os.path.exists(model_path):
         model = load_model(model_path)
@@ -41,12 +41,12 @@ def run_lstm_model(df, stock_name="default"):
 
         model.fit(X, scaled_data[window:], epochs=5, batch_size=32, verbose=0)
 
-        # 🔥 SAVE MODEL
+        #  SAVE MODEL
         os.makedirs("models/saved_models", exist_ok=True)
         model.save(model_path)
 
     # ============================
-    # 🔥 PREDICT FUTURE
+    #  PREDICT FUTURE
     # ============================
     last_seq = scaled_data[-window:]
     predictions = []
